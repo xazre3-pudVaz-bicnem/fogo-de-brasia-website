@@ -20,6 +20,12 @@ const p = (
 
 export const photos = {
   // ── 主要ビジュアル ───────────────────────────────
+  hero: p(
+    'hero-shinjuku',
+    1672,
+    941,
+    '炎の灯る店内で、串に刺したピッカーニャをナイフで切り分けるスタッフ'
+  ),
   heroCarving: p(
     'hero-carving',
     2000,
@@ -237,7 +243,29 @@ export const photos = {
     370,
     'カウンターに並ぶゴールドのビールサーバー'
   ),
-  cheers: p('drink-cheers', 1200, 800, 'グラスを合わせて乾杯するテーブルの様子'),
+  cheers: p(
+    'drink-cheers',
+    1200,
+    800,
+    'グラスを合わせて乾杯するテーブルの様子'
+  ),
 } satisfies Record<string, Photo>;
 
 export type PhotoKey = keyof typeof photos;
+
+/**
+ * ロゴ。
+ * ご支給いただいた白背景のロゴから、暗い背景用に透過＋配色調整した版を
+ * scripts/build-logo.mjs で生成している（炎の赤は維持、線画・文字はアイボリー）。
+ */
+export const logo = {
+  /** エンブレム（牛＋炎）。小さく置いても潰れないので、ヘッダー向け */
+  mark: p('logo-mark', 294, 207, 'FOGO De BRASIA のロゴマーク'),
+  /** 文字を含むロゴ全体。フッターなど、大きく置ける場所向け */
+  full: p(
+    'logo-full',
+    384,
+    327,
+    'シュラスコテーブル FOGO De BRASIA 新宿のロゴ'
+  ),
+} satisfies Record<string, Photo>;

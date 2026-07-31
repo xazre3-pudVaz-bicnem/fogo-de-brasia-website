@@ -40,7 +40,7 @@ export function restaurantSchema() {
     description:
       '新宿・歌舞伎町にある本格ブラジリアンシュラスコの専門店。専用ロースターで焼き上げた肉を、スタッフがお客様の目の前で切り分けてご提供します。',
     url: site.url,
-    image: [abs('/og-image.jpg'), abs('/images/hero-carving.webp')],
+    image: [abs('/og-image.jpg'), abs('/images/hero-shinjuku.webp')],
     address: postalAddress,
     servesCuisine: [...site.servesCuisine],
     priceRange: site.priceRange,

@@ -9,29 +9,33 @@ import { site } from '@/lib/site-config';
 export function Hero() {
   return (
     <section className="relative isolate flex min-h-[88svh] flex-col justify-end overflow-hidden md:min-h-[94svh]">
+      {/*
+        スマートフォンは縦に長く切り取られるため、切り分けている手元が
+        画面に残るよう object-position を右寄りにしている。
+      */}
       <Image
-        src={photos.heroCarving.src}
-        alt={photos.heroCarving.alt}
+        src={photos.hero.src}
+        alt={photos.hero.alt}
         fill
         priority
         fetchPriority="high"
         sizes="100vw"
         quality={82}
-        className="-z-10 object-cover object-[62%_center] md:object-[center_38%]"
+        className="-z-10 object-cover object-[68%_center] md:object-center"
       />
 
-      {/* 文字の可読性を確保する暗めのオーバーレイ */}
+      {/*
+        文字の可読性を確保しつつ、写真の暖炉の灯りを潰さないよう、
+        全面を均一に暗くするのではなく、文字が載る左下へ重点的に落とす。
+      */}
+      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-ink/28" />
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-ink/45"
+        className="absolute inset-0 -z-10 bg-gradient-to-t from-char via-char/45 to-transparent"
       />
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-gradient-to-t from-char via-char/35 to-ink/60"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-gradient-to-r from-ink/70 via-transparent to-transparent"
+        className="absolute inset-0 -z-10 bg-gradient-to-r from-ink/72 via-ink/15 to-transparent"
       />
 
       <div className="mx-auto w-full max-w-[86rem] px-5 pb-24 md:px-9 md:pb-28">

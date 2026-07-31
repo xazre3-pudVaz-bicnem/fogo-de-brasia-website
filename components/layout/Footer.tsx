@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { nav, publicOpeningHours, publicPhone, site } from '@/lib/site-config';
-import { Wordmark } from '@/components/ui/Wordmark';
+import { LogoFull } from '@/components/ui/Wordmark';
 import { ReservationButton } from '@/components/ui/ReservationButton';
 
 export function Footer() {
@@ -10,7 +10,12 @@ export function Footer() {
         <div className="grid gap-14 lg:grid-cols-[minmax(0,1fr)_auto]">
           {/* 店舗情報 */}
           <div>
-            <Wordmark size="md" withKana align="start" className="max-w-xs" />
+            <div>
+              <LogoFull width={168} />
+              <p className="mt-5 text-[0.9rem] tracking-[0.06em] text-ivory-2">
+                {site.name}
+              </p>
+            </div>
 
             <dl className="mt-10 space-y-4 text-[0.84rem] leading-[1.9]">
               <div className="flex gap-5">

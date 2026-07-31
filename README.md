@@ -82,13 +82,35 @@ npm run typecheck  # tsc --noEmit
 | 本番ドメイン | `site.url` を実際のドメインに変更してください（canonical・OG・sitemap の基点） |
 | ラストオーダー時刻 | 未確認のため掲載していません。判明後 `openingHours.draft.text` に追記できます |
 
-## 写真について
+## 画像・ロゴについて
 
-- 配信用の最適化済み WebP は `public/images/`（40点・計約4.9MB）
-- 元データは `photos-source/`（84点・計約75MB）。`public/` の外にあるため配信されません
-- 変換スクリプトは `scripts/build-images.mjs`、対応表は `photos-source/MANIFEST.txt`
+- 配信用の最適化済み WebP は `public/images/`
+- 元データは `photos-source/`（`public/` の外にあるため配信されません）
+- 変換スクリプト: `scripts/build-images.mjs`（店舗写真）／ `scripts/build-logo.mjs`（ロゴ・ヒーロー）
+- 店舗写真の対応表は `photos-source/MANIFEST.txt`
 
-`photos-source/` はリポジトリの容量を大きく増やします。
+### ロゴ
+
+ご支給いただいたロゴは白背景・150px 角のため、そのままでは暗い背景に置けません。
+`scripts/build-logo.mjs` で以下を自動生成しています。
+
+| 生成物 | 内容 | 使用箇所 |
+| --- | --- | --- |
+| `logo-mark.webp` | エンブレム（牛＋炎）のみ。透過・ダーク背景用 | ヘッダー |
+| `logo-full.webp` | 文字を含むロゴ全体。透過・ダーク背景用 | フッター |
+| `app/icon.png` | エンブレムから生成した favicon | ブラウザタブ |
+
+白背景を透過に変換したうえで、**炎の赤はブランド色として維持し、黒だった線画と文字を
+アイボリーへ置き換えて**います（＝ダークモード用ロゴ）。元の配色のままではチャコール地で
+文字が読めなくなるためです。
+
+ヘッダーは文字が潰れないよう、エンブレム＋文字組みの店名という組み合わせにしています。
+ロゴを差し替える場合は `photos-source/supplied/logo.jpg` を置き換えて
+`node scripts/build-logo.mjs` を実行してください。
+
+### 容量について
+
+`photos-source/` はリポジトリの容量を大きく増やします（約77MB）。
 Git で管理する必要がなければ `.gitignore` に追加し、別途保管することをおすすめします。
 
 ## SEO
