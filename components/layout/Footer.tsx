@@ -144,6 +144,14 @@ export function Footer() {
                 ))}
                 <li>
                   <Link
+                    href="/blog"
+                    className="text-ivory-2 transition-colors hover:text-gold"
+                  >
+                    ブログ
+                  </Link>
+                </li>
+                <li>
+                  <Link
                     href="/party"
                     className="text-ivory-2 transition-colors hover:text-gold"
                   >

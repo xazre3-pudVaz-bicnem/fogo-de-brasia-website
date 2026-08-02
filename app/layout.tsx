@@ -105,7 +105,7 @@ export default function RootLayout({
         <link
           rel="alternate"
           type="application/rss+xml"
-          title={`${site.shortName} お知らせ・コラム`}
+          title={`${site.shortName} お知らせ・ブログ`}
           href="/feed.xml"
         />
       </head>

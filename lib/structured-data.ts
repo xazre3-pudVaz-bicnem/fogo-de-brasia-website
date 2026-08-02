@@ -237,8 +237,10 @@ export function articleSchema(a: {
   publishedAt: string;
   updatedAt?: string;
   image: string;
+  /** 記事のパス。省略時は /news/{slug}（ブログは /blog/{slug} を渡す） */
+  path?: string;
 }) {
-  const url = absoluteUrl(`/news/${a.slug}`);
+  const url = absoluteUrl(a.path ?? `/news/${a.slug}`);
   return {
     '@type': 'Article',
     '@id': `${url}#article`,

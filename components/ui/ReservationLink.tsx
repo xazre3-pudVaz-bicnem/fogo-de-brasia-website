@@ -27,6 +27,7 @@ export type CtaLocation =
   | 'about'
   | 'churrasco'
   | 'news'
+  | 'blog'
   | 'footer'
   | 'mobile-fixed'
   | 'mobile-menu'

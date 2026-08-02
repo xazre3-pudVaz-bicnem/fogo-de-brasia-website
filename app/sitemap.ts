@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 import { absoluteUrl, isIndexable } from '@/lib/env';
 import { routes } from '@/lib/routes';
 import { publishedArticles, totalPages } from '@/data/news';
+import { getAllPosts, getUsedCategories, CATEGORY_SLUGS } from '@/lib/blog';
 
 /**
  * sitemap.xml
@@ -41,5 +42,28 @@ export default function sitemap(): MetadataRoute.Sitemap {
     images: [absoluteUrl(a.photo.src)],
   }));
 
-  return [...staticPages, ...newsPages, ...articlePages];
+  // ブログ（content/blog/*.md／GitHub Actions が毎日追記する）
+  const blogPages: MetadataRoute.Sitemap = getAllPosts().map((p) => ({
+    url: absoluteUrl(`/blog/${p.slug}`),
+    lastModified: new Date(`${p.date}T00:00:00+09:00`),
+    changeFrequency: 'monthly' as const,
+    priority: 0.5,
+  }));
+
+  const blogCategoryPages: MetadataRoute.Sitemap = getUsedCategories().map(
+    (c) => ({
+      url: absoluteUrl(`/blog/category/${CATEGORY_SLUGS[c]}`),
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.3,
+    })
+  );
+
+  return [
+    ...staticPages,
+    ...newsPages,
+    ...articlePages,
+    ...blogPages,
+    ...blogCategoryPages,
+  ];
 }

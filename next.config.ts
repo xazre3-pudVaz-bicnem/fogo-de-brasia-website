@@ -74,8 +74,7 @@ const nextConfig: NextConfig = {
       // 一般的な表記ゆれ
       { source: '/menu/course', destination: '/menu', permanent: true },
       { source: '/course', destination: '/menu', permanent: true },
-      { source: '/blog', destination: '/news', permanent: true },
-      { source: '/blog/:slug', destination: '/news/:slug', permanent: true },
+      // /blog は content/blog の記事を配信する実ページのため、リダイレクトしない
       { source: '/rss', destination: '/feed.xml', permanent: true },
       { source: '/feed', destination: '/feed.xml', permanent: true }
     );

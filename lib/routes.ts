@@ -96,6 +96,14 @@ export const routes: Route[] = [
     image: '/images/skewer-table-setting.webp',
   },
   {
+    path: '/blog',
+    name: 'ブログ',
+    priority: 0.6,
+    // 毎日1本追加されるため daily
+    changeFrequency: 'daily',
+    image: '/images/picanha-roast-beer.webp',
+  },
+  {
     path: '/privacy',
     name: 'プライバシーポリシー',
     priority: 0.2,
