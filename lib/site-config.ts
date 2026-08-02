@@ -17,19 +17,15 @@
  *    正確な座標が未確認のため geo は出力せず、地図は住所検索の埋め込みを使用。
  *    確認後 geo.latitude / geo.longitude に入れ、geo.verified を true にすること。
  *
- * 2. Google ビジネスプロフィールのURL
- *    正しいURLを確認できていないため sameAs に含めていない。
- *    確認後 googleBusinessProfileUrl に設定すると sameAs へ自動追加される。
- *
- * 3. 外観・入口・エレベーター周辺の写真
+ * 2. 外観・入口・エレベーター周辺の写真
  *    お預かりした写真に含まれていない。撮影後 public/images/ へ追加し、
  *    lib/images.ts へ登録するとアクセスページで使用できる。
  *
- * 4. 店舗責任者・料理責任者の氏名／経歴／顔写真
+ * 3. 店舗責任者・料理責任者の氏名／経歴／顔写真
  *    未確認のため、about ページの担当者紹介は出していない。
  *    実在が確認できない人物を作らないこと。
  *
- * 5. ラストオーダー時刻
+ * 4. ラストオーダー時刻
  *    未確認のため掲載していない。
  */
 import { siteUrl } from './env';
@@ -116,8 +112,18 @@ export const site = {
   tableCheckUrl:
     'https://www.tablecheck.com/shops/fogo-de-brasia-shinjuku/reserve',
   instagramUrl: 'https://www.instagram.com/fogo_de_brasia/',
-  /** 【要確認】正しいURLが確認できるまで null。架空URLを入れないこと */
-  googleBusinessProfileUrl: null as string | null,
+  /**
+   * Google ビジネスプロフィール（Google のナレッジグラフ上のエンティティ）。
+   *
+   * 店舗様よりご共有いただいた共有リンク https://share.google/6GggECpchgMtkBRzr が
+   * kgmid=/g/11vkl00r24 に解決されることを確認して設定した。
+   * 共有リンクそのものは失効の可能性があり、解決先にも計測用パラメータが付くため、
+   * sameAs には安定した識別子の形（kgmid）を使う。
+   */
+  googleBusinessProfileUrl:
+    'https://www.google.com/search?kgmid=/g/11vkl00r24' as string | null,
+  /** ナレッジグラフのエンティティID（照合用に控えておく） */
+  googleKnowledgeGraphId: '/g/11vkl00r24',
   googleMapsUrl:
     'https://www.google.com/maps/search/?api=1&query=%E6%9D%B1%E4%BA%AC%E9%83%BD%E6%96%B0%E5%AE%BF%E5%8C%BA%E6%AD%8C%E8%88%9E%E4%BC%8E%E7%94%BA1-6-7',
   googleMapsEmbedUrl:
