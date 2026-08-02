@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { nav, publicOpeningHours, publicPhone, site } from '@/lib/site-config';
 import { LogoFull } from '@/components/ui/Wordmark';
-import { ReservationButton } from '@/components/ui/ReservationButton';
+import { ReservationLink } from '@/components/ui/ReservationLink';
 
 export function Footer() {
   return (
@@ -37,7 +37,7 @@ export function Footer() {
                       {publicOpeningHours.text}
                       <br />
                       <span className="text-ivory-dim">
-                        {publicOpeningHours.closed}
+                        {publicOpeningHours.closedDays}
                       </span>
                     </>
                   ) : (
@@ -98,7 +98,7 @@ export function Footer() {
                 INSTAGRAM
               </a>
               <a
-                href={site.googleMapsSearchUrl}
+                href={site.googleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="latin inline-flex items-center gap-2.5 text-[0.75rem] text-ivory-2 transition-colors hover:text-gold"
@@ -162,9 +162,9 @@ export function Footer() {
             </nav>
 
             <div className="mt-9">
-              <ReservationButton location="footer" variant="outline" size="sm">
+              <ReservationLink location="footer" variant="outline" size="sm">
                 TableCheckで予約する
-              </ReservationButton>
+              </ReservationLink>
             </div>
           </div>
         </div>

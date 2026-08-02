@@ -11,20 +11,24 @@ import { PageHero } from '@/components/ui/PageHero';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { CourseList } from '@/components/sections/CourseList';
 import { ReservationCTA } from '@/components/sections/ReservationCTA';
-import { ReservationButton } from '@/components/ui/ReservationButton';
+import { ReservationLink } from '@/components/ui/ReservationLink';
 import { JsonLd } from '@/components/ui/JsonLd';
-import { breadcrumbSchema, graph } from '@/lib/structured-data';
+import {
+  breadcrumbWithId,
+  graph,
+  webPageSchema,
+} from '@/lib/structured-data';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'メニュー・コース｜新宿のシュラスコ食べ放題',
+  title: 'メニュー・料金｜新宿のシュラスコ食べ放題',
   description:
-    '新宿・歌舞伎町のFOGO De BRASIA 新宿のメニュー。ピッカーニャをはじめとする約15種類のシュラスコ、約30種類のサラダバービュッフェ、デザート、飲み放題付きコースをご紹介します。ご予約はTableCheckから。',
+    '新宿・歌舞伎町のシュラスコ食べ放題コースの料金と内容。約15種類のシュラスコ、約30種類のサラダバービュッフェ、120分・150分の飲み放題付きプランを比較できます。お子様は5歳まで無料、6〜10歳は半額。',
   path: '/menu',
 });
 
 const crumbs = [
   { name: 'ホーム', href: '/' },
-  { name: 'メニュー・コース', href: '/menu' },
+  { name: 'メニュー・料金', href: '/menu' },
 ];
 
 const kindLabel: Record<string, string> = {
@@ -79,12 +83,90 @@ export default function MenuPage() {
           <SectionHeading
             index="01"
             latin="COURSE"
-            title="コース一覧"
-            lead="すべてのコースに、シュラスコ食べ放題・サラダバービュッフェ・飲み放題が含まれます。ひとりあたりの金額が先に決まるため、幹事の方にも見積もりを立てていただきやすい構成です。"
+            title="コースの選び方"
+            lead="すべてのコースに、シュラスコ食べ放題、サラダバービュッフェ、飲み放題をセットにしてご用意しています。ひとりあたりの金額が先に決まるため、幹事の方にも見積もりを立てていただきやすい構成です。"
           />
 
+          {/* 選び方の指針。価格の並びだけでは決めにくいため、目的から逆算できるようにする */}
+          <div className="mt-14 grid gap-px md:grid-cols-2">
+            <div className="border-t-2 border-gold/50 bg-char-2/40 px-6 py-9 md:px-9 md:py-11">
+              <p className="latin text-[0.7rem] text-gold">120 MIN</p>
+              <h3 className="mt-4 text-[1.15rem] text-ivory">
+                120分が向く会
+              </h3>
+              <p className="mt-4 text-[0.87rem] leading-[2.05] text-ivory-dim">
+                2〜6名のお食事、デート、平日の夕食。食べ放題と飲み放題を両方楽しむには、意外にちょうどよい長さです。当店の標準はこちらになります。
+              </p>
+            </div>
+            <div className="border-t-2 border-gold/50 bg-char-2/40 px-6 py-9 md:px-9 md:py-11">
+              <p className="latin text-[0.7rem] text-gold">150 MIN</p>
+              <h3 className="mt-4 text-[1.15rem] text-ivory">
+                150分が向く会
+              </h3>
+              <p className="mt-4 text-[0.87rem] leading-[2.05] text-ivory-dim">
+                挨拶や余興のある宴会、歓送迎会、久しぶりに会う相手との食事。話す時間を取ると120分は早く過ぎます。飲み放題の種類も30種以上に広がります。
+              </p>
+            </div>
+          </div>
+
+          <dl className="mt-12 border-t border-ivory/12">
+            {[
+              {
+                t: 'はじめての方',
+                d: 'OPEN記念コース（5,980円）。厳選イチボのシュラスコとサラダバー、飲み放題が揃った、まず一度試すのに向く構成です。',
+              },
+              {
+                t: '部位を一通り味わいたい方',
+                d: 'レギュラーディナーコース（7,700円）。シュラスコ15種にデザートビュッフェが加わります。迷ったときの標準の一本です。',
+              },
+              {
+                t: '誕生日・記念日',
+                d: '誕生日・記念日コース（8,000円）。乾杯のスパークリングとメッセージ入りデザートプレートが含まれます。',
+              },
+              {
+                t: '宴会・歓送迎会',
+                d: 'プレミアムディナーコース（8,800円・150分）。挨拶や余興の時間を見込めます。40名様からは貸切もご相談ください。',
+              },
+              {
+                t: '早い時間に始めたい方',
+                d: '早割ディナーコース（5,500円）。16時〜17時のご入店限定で、内容は変えずに価格が下がります。',
+              },
+            ].map((r) => (
+              <div
+                key={r.t}
+                className="grid gap-2 border-b border-ivory/12 py-6 sm:grid-cols-[14rem_minmax(0,1fr)] sm:gap-8"
+              >
+                <dt className="font-mincho text-[0.98rem] text-gold">{r.t}</dt>
+                <dd className="text-[0.87rem] leading-[2] text-ivory-2">
+                  {r.d}
+                </dd>
+              </div>
+            ))}
+          </dl>
+
+          {/* お子様料金 */}
+          <div className="mt-12 border-l-2 border-gold/50 bg-char-2/50 px-6 py-8 md:px-9">
+            <h3 className="text-[1.05rem] text-ivory">お子様料金</h3>
+            <dl className="mt-5 flex flex-wrap gap-x-12 gap-y-4">
+              {site.childPolicy.rules.map((r) => (
+                <div key={r.age} className="flex items-baseline gap-3">
+                  <dt className="text-[0.85rem] text-ivory-dim">{r.age}</dt>
+                  <dd className="font-mincho text-[1.2rem] text-gold">
+                    {r.price}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            <Link
+              href="/family"
+              className="mt-6 inline-block text-[0.85rem] text-gold link-underline"
+            >
+              子連れでのご利用について詳しく見る
+            </Link>
+          </div>
+
           <div className="mt-16">
-            <CourseList location="menu-course" />
+            <CourseList />
           </div>
         </div>
       </section>
@@ -316,13 +398,13 @@ export default function MenuPage() {
                 ※ 飲み放題の内容はコースにより異なります。詳細は TableCheck の各プランをご確認ください。
               </p>
               <div className="mt-9">
-                <ReservationButton
-                  location="menu-drink"
+                <ReservationLink
+                  location="menu"
                   variant="outline"
                   size="md"
                 >
                   コースを選んで予約する
-                </ReservationButton>
+                </ReservationLink>
               </div>
             </div>
           </div>
@@ -330,7 +412,7 @@ export default function MenuPage() {
       </section>
 
       <ReservationCTA
-        location="menu-footer"
+        location="menu"
         photo={photos.skewerTable}
         objectPosition="center 60%"
         label="コースを選んで予約する"
@@ -344,7 +426,15 @@ export default function MenuPage() {
         lead="内容・価格は変更になる場合があります。最新のプラン内容と空席状況は、TableCheck の予約ページでご確認ください。"
       />
 
-      <JsonLd data={graph(breadcrumbSchema(crumbs))} />
+      <JsonLd data={graph(
+          breadcrumbWithId(crumbs, '/menu'),
+          webPageSchema({
+            path: '/menu',
+            name: metadata.title as string,
+            description: metadata.description as string,
+            primaryImage: '/images/churrasco-lineup.webp',
+          })
+        )} />
     </>
   );
 }

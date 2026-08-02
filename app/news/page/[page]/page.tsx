@@ -89,7 +89,7 @@ export default async function NewsPagedPage({ params }: Params) {
         </div>
       </section>
 
-      <ReservationCTA location="news-paged-footer" label="空席を確認する" />
+      <ReservationCTA location="news" label="空席を確認する" />
 
       <JsonLd data={graph(breadcrumbSchema(crumbs))} />
     </>

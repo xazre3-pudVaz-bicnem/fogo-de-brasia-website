@@ -1,42 +1,44 @@
 import type { MetadataRoute } from 'next';
-import { site } from '@/lib/site-config';
-import { articles, totalPages } from '@/data/news';
+import { absoluteUrl, isIndexable } from '@/lib/env';
+import { routes } from '@/lib/routes';
+import { publishedArticles, totalPages } from '@/data/news';
 
-const abs = (path: string) => new URL(path, site.url).toString();
-
+/**
+ * sitemap.xml
+ * ・index 可能なページのみを載せる（noindex ページ・下書き記事は含めない）
+ * ・記事は公開日／更新日を lastModified に反映する
+ * ・代表画像を images として持たせ、画像サイトマップを兼ねる
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date();
+  // 仮ドメイン・Preview では sitemap を空にして、誤ってクロールされないようにする
+  if (!isIndexable) return [];
 
-  const staticPages: MetadataRoute.Sitemap = (
-    [
-      { url: abs('/'), changeFrequency: 'weekly', priority: 1 },
-      { url: abs('/churrasco'), changeFrequency: 'monthly', priority: 0.9 },
-      { url: abs('/menu'), changeFrequency: 'weekly', priority: 0.9 },
-      { url: abs('/party'), changeFrequency: 'monthly', priority: 0.8 },
-      { url: abs('/occasions'), changeFrequency: 'monthly', priority: 0.8 },
-      { url: abs('/space'), changeFrequency: 'monthly', priority: 0.7 },
-      { url: abs('/access'), changeFrequency: 'monthly', priority: 0.7 },
-      { url: abs('/about'), changeFrequency: 'monthly', priority: 0.6 },
-      { url: abs('/news'), changeFrequency: 'weekly', priority: 0.6 },
-      { url: abs('/privacy'), changeFrequency: 'yearly', priority: 0.2 },
-    ] satisfies MetadataRoute.Sitemap
-  ).map((p) => ({ ...p, lastModified }));
+  const now = new Date();
+
+  const staticPages: MetadataRoute.Sitemap = routes.map((r) => ({
+    url: absoluteUrl(r.path),
+    lastModified: now,
+    changeFrequency: r.changeFrequency,
+    priority: r.priority,
+    ...(r.image ? { images: [absoluteUrl(r.image)] } : {}),
+  }));
 
   const newsPages: MetadataRoute.Sitemap = Array.from(
     { length: Math.max(0, totalPages - 1) },
     (_, i) => ({
-      url: abs(`/news/page/${i + 2}`),
-      lastModified,
+      url: absoluteUrl(`/news/page/${i + 2}`),
+      lastModified: now,
       changeFrequency: 'weekly' as const,
-      priority: 0.4,
+      priority: 0.3,
     })
   );
 
-  const articlePages: MetadataRoute.Sitemap = articles.map((a) => ({
-    url: abs(`/news/${a.slug}`),
+  const articlePages: MetadataRoute.Sitemap = publishedArticles.map((a) => ({
+    url: absoluteUrl(`/news/${a.slug}`),
     lastModified: new Date(a.updatedAt ?? a.publishedAt),
     changeFrequency: 'monthly' as const,
     priority: 0.5,
+    images: [absoluteUrl(a.photo.src)],
   }));
 
   return [...staticPages, ...newsPages, ...articlePages];

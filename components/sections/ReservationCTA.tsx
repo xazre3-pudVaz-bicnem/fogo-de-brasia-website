@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { photos, type Photo } from '@/lib/images';
 import { site } from '@/lib/site-config';
-import { ReservationButton } from '@/components/ui/ReservationButton';
+import { ReservationLink, type CtaLocation } from '@/components/ui/ReservationLink';
 
 /**
  * ページ末尾の予約導線。
@@ -22,7 +22,7 @@ export function ReservationCTA({
   ),
   lead = '席数に限りがあるため、ご予約をおすすめしています。空席状況とコース内容は、TableCheck の予約ページからご確認いただけます。',
 }: {
-  location: string;
+  location: CtaLocation;
   label?: string;
   photo?: Photo;
   objectPosition?: string;
@@ -63,14 +63,14 @@ export function ReservationCTA({
           </p>
 
           <div className="mt-10">
-            <ReservationButton
+            <ReservationLink
               location={location}
               variant="solid"
               size="lg"
               showExternalNote
             >
               {label}
-            </ReservationButton>
+            </ReservationLink>
           </div>
 
           <dl className="mt-12 space-y-3 border-t border-ivory/15 pt-8 text-[0.8rem]">

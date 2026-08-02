@@ -15,6 +15,8 @@ export type Occasion = {
   lead: string;
   points: { title: string; body: string }[];
   photo?: Photo;
+  /** 専用ページがある場合のリンク先。概要のみ表示し、詳細はそちらへ送る */
+  dedicatedPage?: { href: string; label: string };
 };
 
 export const occasions: Occasion[] = [
@@ -43,6 +45,7 @@ export const occasions: Occasion[] = [
   },
   {
     id: 'birthday',
+    dedicatedPage: { href: '/anniversary', label: '誕生日・記念日ディナーの詳細を見る' },
     label: '誕生日・記念日',
     latin: 'ANNIVERSARY',
     heading: '新宿で誕生日ディナー・記念日レストランを探している方へ',
@@ -89,6 +92,7 @@ export const occasions: Occasion[] = [
   },
   {
     id: 'family',
+    dedicatedPage: { href: '/family', label: '子連れシュラスコの詳細を見る' },
     label: '家族での食事',
     latin: 'FAMILY',
     heading: 'ご家族での食事にご利用いただく方へ',
@@ -135,6 +139,7 @@ export const occasions: Occasion[] = [
   },
   {
     id: 'company',
+    dedicatedPage: { href: '/party', label: '宴会・貸切のご案内を見る' },
     label: '会社宴会',
     latin: 'COMPANY',
     heading: '新宿で会社宴会の会場を探している方へ',
@@ -204,6 +209,7 @@ export const occasions: Occasion[] = [
   },
   {
     id: 'private',
+    dedicatedPage: { href: '/party', label: '40名様からの貸切プランを見る' },
     label: '大人数の貸切',
     latin: 'PRIVATE',
     heading: '新宿で貸切のレストランを探している方へ',

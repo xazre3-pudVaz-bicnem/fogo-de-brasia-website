@@ -74,7 +74,7 @@ export const photos = {
     'seat-marble-round',
     1200,
     1200,
-    'マーブル模様のラウンドテーブルとクッションを配した半個室のソファー席'
+    'マーブル模様のラウンドテーブルとクッションを配した、こもり感のあるソファー席'
   ),
   seatTableRow: p(
     'seat-table-row',

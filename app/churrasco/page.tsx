@@ -11,12 +11,16 @@ import { PageHero } from '@/components/ui/PageHero';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { ReservationCTA } from '@/components/sections/ReservationCTA';
 import { JsonLd } from '@/components/ui/JsonLd';
-import { breadcrumbSchema, graph } from '@/lib/structured-data';
+import {
+  breadcrumbWithId,
+  graph,
+  webPageSchema,
+} from '@/lib/structured-data';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'シュラスコとは｜新宿で味わう本格の炭火焼き',
+  title: 'シュラスコとは？食べ方と人気部位を解説',
   description:
-    'シュラスコとはどんな料理か、店ではどう進むのか。新宿・歌舞伎町のFOGO De BRASIA 新宿が、専用ロースターでの焼き方、目の前での切り分け、部位ごとの味わいの違い、おいしく食べる順番まで詳しくご紹介します。',
+    'シュラスコとはどんな料理か、店ではどう進むのか。専用ロースターでの焼き方、目の前での切り分け、ピッカーニャをはじめとする部位ごとの違い、おいしく食べる順番まで、ブラジルの食べ方とあわせて解説します。',
   path: '/churrasco',
 });
 
@@ -315,7 +319,7 @@ export default function ChurrascoPage() {
       </section>
 
       <ReservationCTA
-        location="churrasco-footer"
+        location="churrasco"
         photo={photos.picanhaTop}
         label="シュラスコを予約する"
         title={
@@ -327,7 +331,15 @@ export default function ChurrascoPage() {
         }
       />
 
-      <JsonLd data={graph(breadcrumbSchema(crumbs))} />
+      <JsonLd data={graph(
+          breadcrumbWithId(crumbs, '/churrasco'),
+          webPageSchema({
+            path: '/churrasco',
+            name: metadata.title as string,
+            description: metadata.description as string,
+            primaryImage: '/images/picanha-skewers-top.webp',
+          })
+        )} />
     </>
   );
 }

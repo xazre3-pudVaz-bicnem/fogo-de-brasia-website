@@ -33,11 +33,33 @@ npm run typecheck  # tsc --noEmit
 | `/churrasco` | シュラスコについて |
 | `/menu` | メニュー・コース |
 | `/space` | 店内・個室 |
-| `/occasions` | 利用シーン（デート／誕生日／女子会／家族／宴会など9シーン） |
-| `/party` | 宴会・貸切・記念日 |
+| `/occasions` | 利用シーン（9シーンのハブ。詳細は下の3ページへ） |
+| `/party` | 宴会・貸切 |
+| `/anniversary` | 誕生日・記念日 |
+| `/family` | 子連れ・ご家族 |
 | `/access` | アクセス・店舗情報 |
 | `/news` `/news/[slug]` `/news/page/[n]` | お知らせ・コラム |
 | `/privacy` | プライバシーポリシー |
+
+## 環境変数
+
+URL をコードへ直接書かず、環境変数から取得しています。**本番（Production）にのみ設定**してください。
+
+| 変数 | 用途 |
+| --- | --- |
+| `NEXT_PUBLIC_SITE_URL` | canonical・OG・構造化データ・sitemap の基点。末尾スラッシュなし |
+| `LEGACY_HOST` | 旧ドメイン。設定すると新ドメインへ 308 リダイレクト |
+| `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | Search Console の HTML タグ認証（任意） |
+
+`NEXT_PUBLIC_SITE_URL` が未設定の環境（Preview / Branch デプロイ / ローカル）は、
+**自動的に `noindex` になり、robots.txt は全面 disallow、sitemap と RSS は空**になります。
+仮ドメインが検索結果に出て本番と重複するのを防ぐためです。設定は `.env.example` を参照してください。
+
+### 独自ドメイン移行の手順
+
+1. Vercel の Production に `NEXT_PUBLIC_SITE_URL` と `LEGACY_HOST` を設定
+2. 再デプロイ（canonical・OG・sitemap・構造化データが自動で切り替わります）
+3. Search Console にプロパティを追加し、sitemap を送信
 
 ## 更新するときに触るファイル
 
@@ -53,6 +75,8 @@ npm run typecheck  # tsc --noEmit
 | `data/occasions.ts` | 利用シーン |
 | `data/news/` | お知らせ・コラム記事 |
 | `lib/images.ts` | 写真のパス・寸法・alt |
+| `lib/routes.ts` | 公開ページの一覧（sitemap・パンくずの出典） |
+| `lib/env.ts` | 公開URLと index 可否の判定 |
 
 ### 記事を追加する
 
@@ -62,6 +86,10 @@ npm run typecheck  # tsc --noEmit
 公開日の降順で並び替えられ、一覧・ページネーション・`sitemap.xml`・
 `Article` 構造化データへ自動的に反映されます。
 1ページあたりの表示件数は `data/news/index.ts` の `PER_PAGE`（既定6件）で変更できます。
+
+情報が不足している記事は `draft: true` にしておくと、一覧・sitemap・RSS に出ず、ページも 404 になります。
+記事には要点（`keyPoints`）・トピック（`topics`）・記事固有 FAQ（`faq`）を持たせてください。
+`topics` は関連記事の選定に使われます（同一カテゴリではなく検索意図の近さで選びます）。
 
 ## 店舗情報の確定状況
 
@@ -116,9 +144,12 @@ Git で管理する必要がなければ `.gitignore` に追加し、別途保�
 ## SEO
 
 - ページごとに固有の title / description / canonical / OG / X カード
-- 構造化データ: `Restaurant`（`hasMenu` 付き）、`WebSite`、`BreadcrumbList`、`FAQPage`、`Article`
-- `sitemap.xml`、`robots.txt`、404 ページ、favicon
-- 予約ボタンには計測用の `data-cta="tablecheck"` / `data-location="..."` を付与
+- 構造化データ: トップは `Organization` / `WebSite` / `Restaurant`、下層は `BreadcrumbList` / `WebPage`、記事は `Article`、FAQ 表示ページは `FAQPage`
+- `Restaurant` には `potentialAction`（TableCheck への `ReserveAction`）と `areaServed` を設定
+- `sitemap.xml`（画像情報つき）、`robots.txt`、`feed.xml`（RSS）、`manifest.webmanifest`、404 ページ、favicon
+- 予約リンクは `components/ui/ReservationLink.tsx` に集約。`data-cta="tablecheck"` / `data-location` を付与
+- クリック計測は `components/analytics/CtaTracker.tsx` が委譲リスナー 1 つで処理（GA4 の `tablecheck_click`）。
+  ボタンごとに `use client` を付けないため、初回 JavaScript が増えません
 
 構造化データは確認できた事実のみで構成しています。
 未確認の値を推測で補完しないでください。

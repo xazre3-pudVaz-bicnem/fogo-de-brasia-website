@@ -1,14 +1,20 @@
-import { courses, featuredCourses, otherCourses, priceNotice, type Course } from '@/data/courses';
-import { ReservationButton } from '@/components/ui/ReservationButton';
-
-const yen = (n: number) => `¥${n.toLocaleString('ja-JP')}`;
+import {
+  courses,
+  featuredCourses,
+  otherCourses,
+  formatYen,
+  priceNotice,
+  type Course,
+} from '@/data/courses';
+import { freshnessNote, LAST_VERIFIED_AT } from '@/lib/site-config';
+import { ReservationLink } from '@/components/ui/ReservationLink';
 
 function PriceBlock({ course, big }: { course: Course; big?: boolean }) {
   return (
     <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-      {course.priceBefore && (
+      {course.regularPrice && (
         <span className="text-[0.8rem] text-ivory-dim line-through decoration-bordeaux decoration-1">
-          {yen(course.priceBefore)}
+          {formatYen(course.regularPrice)}
         </span>
       )}
       <span
@@ -16,17 +22,16 @@ function PriceBlock({ course, big }: { course: Course; big?: boolean }) {
           big ? 'text-[2rem] md:text-[2.4rem]' : 'text-[1.5rem]'
         }`}
       >
-        {yen(course.price)}
+        {formatYen(course.salePrice)}
+        {course.priceSuffix}
       </span>
-      <span className="text-[0.72rem] text-ivory-dim">
-        税込{course.priceNote ?? ''}
-      </span>
+      <span className="text-[0.75rem] text-ivory-dim">税込</span>
     </p>
   );
 }
 
 /** 代表コースを大きく、その他を一覧で見せる（すべて同じ大きさのカードにしない） */
-export function CourseList({ location }: { location: string }) {
+export function CourseList() {
   return (
     <div>
       {/* 代表コース */}
@@ -34,15 +39,16 @@ export function CourseList({ location }: { location: string }) {
         {featuredCourses.map((course, i) => (
           <article
             key={course.id}
-            className="reveal grid gap-8 border-l-2 border-gold/50 bg-char-2 px-6 py-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-14 md:px-12 md:py-14"
+            id={course.id}
+            className="reveal grid scroll-mt-24 gap-8 border-l-2 border-gold/50 bg-char-2 px-6 py-10 md:grid-cols-[minmax(0,1fr)_auto] md:items-end md:gap-14 md:px-12 md:py-14"
           >
             <div>
-              <p className="latin flex items-center gap-3 text-[0.7rem] text-gold">
+              <p className="latin flex flex-wrap items-center gap-3 text-[0.7rem] text-gold">
                 <span className="tabular-nums">
                   {String(i + 1).padStart(2, '0')}
                 </span>
                 <span className="h-px w-6 bg-gold/50" />
-                <span>{course.minutes} MIN</span>
+                <span>{course.duration} MIN</span>
                 {course.condition && (
                   <span className="border border-gold/40 px-2 py-0.5 text-[0.7rem] tracking-[0.14em] text-gold">
                     {course.condition}
@@ -54,11 +60,11 @@ export function CourseList({ location }: { location: string }) {
                 {course.name}
               </h3>
               <p className="mt-3 text-[0.88rem] leading-[1.95] text-ivory-dim">
-                {course.tagline}
+                {course.description}
               </p>
 
               <ul className="mt-7 space-y-2.5">
-                {course.includes.map((line) => (
+                {course.features.map((line) => (
                   <li
                     key={line}
                     className="flex gap-3 text-[0.85rem] leading-[1.85] text-ivory-2"
@@ -71,18 +77,36 @@ export function CourseList({ location }: { location: string }) {
                   </li>
                 ))}
               </ul>
+
+              <div className="mt-7 border-t border-ivory/12 pt-5">
+                <p className="text-[0.75rem] tracking-[0.08em] text-gold-dim">
+                  こんな方に
+                </p>
+                <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+                  {course.recommendedFor.map((r) => (
+                    <li
+                      key={r}
+                      className="text-[0.8rem] leading-relaxed text-ivory-dim"
+                    >
+                      {r}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
             <div className="shrink-0 md:text-right">
               <PriceBlock course={course} big />
               <div className="mt-6">
-                <ReservationButton
-                  location={`${location}-${course.id}`}
+                <ReservationLink
+                  location="course"
+                  courseName={course.name}
+                  href={course.tableCheckUrl}
                   variant="outline"
                   size="md"
                 >
                   このコースで予約する
-                </ReservationButton>
+                </ReservationLink>
               </div>
             </div>
           </article>
@@ -96,12 +120,13 @@ export function CourseList({ location }: { location: string }) {
           {otherCourses.map((course) => (
             <li
               key={course.id}
-              className="grid gap-5 border-b border-ivory/12 py-8 md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_auto] md:items-center md:gap-10"
+              id={course.id}
+              className="grid scroll-mt-24 gap-5 border-b border-ivory/12 py-8 md:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_auto] md:items-center md:gap-10"
             >
               <div>
                 <h3 className="text-[1.05rem] text-ivory">{course.name}</h3>
                 <p className="mt-2 text-[0.82rem] leading-[1.9] text-ivory-dim">
-                  {course.tagline}
+                  {course.description}
                 </p>
                 {course.condition && (
                   <p className="latin mt-3 inline-block border border-gold/35 px-2 py-0.5 text-[0.7rem] tracking-[0.14em] text-gold">
@@ -111,7 +136,7 @@ export function CourseList({ location }: { location: string }) {
               </div>
 
               <ul className="space-y-1.5">
-                {course.includes.map((line) => (
+                {course.features.map((line) => (
                   <li
                     key={line}
                     className="text-[0.78rem] leading-[1.8] text-ivory-2"
@@ -123,14 +148,19 @@ export function CourseList({ location }: { location: string }) {
 
               <div className="md:text-right">
                 <PriceBlock course={course} />
+                <p className="latin mt-1.5 text-[0.7rem] text-ivory-dim">
+                  {course.duration} MIN
+                </p>
                 <div className="mt-4">
-                  <ReservationButton
-                    location={`${location}-${course.id}`}
+                  <ReservationLink
+                    location="course"
+                    courseName={course.name}
+                    href={course.tableCheckUrl}
                     variant="ghost"
                     size="sm"
                   >
                     予約する
-                  </ReservationButton>
+                  </ReservationLink>
                 </div>
               </div>
             </li>
@@ -140,17 +170,20 @@ export function CourseList({ location }: { location: string }) {
 
       <ul className="mt-9 space-y-1.5">
         {priceNotice.map((n) => (
-          <li key={n} className="text-[0.72rem] leading-relaxed text-ivory-dim">
+          <li key={n} className="text-[0.75rem] leading-relaxed text-ivory-dim">
             ※ {n}
           </li>
         ))}
+        <li className="text-[0.75rem] leading-relaxed text-ivory-dim">
+          ※ {freshnessNote(LAST_VERIFIED_AT)}
+        </li>
       </ul>
     </div>
   );
 }
 
-/** トップページ用の簡易版（代表コースのみ） */
-export function CoursePreview({ location }: { location: string }) {
+/** トップページ用の抜粋（代表コースのみ） */
+export function CoursePreview() {
   return (
     <ul className="space-y-px">
       {featuredCourses.map((course, i) => (
@@ -166,21 +199,21 @@ export function CoursePreview({ location }: { location: string }) {
               {course.name}
             </h3>
             <p className="mt-2 text-[0.82rem] leading-[1.9] text-ivory-dim">
-              {course.tagline}
+              {course.description}
             </p>
           </div>
           <div className="md:text-right">
             <PriceBlock course={course} />
             <p className="latin mt-1.5 text-[0.7rem] text-ivory-dim">
-              {course.minutes} MIN
+              {course.duration} MIN
             </p>
           </div>
         </li>
       ))}
       <li className="pt-8">
-        <ReservationButton location={location} variant="outline" size="md">
+        <ReservationLink location="course" variant="outline" size="md">
           コースを選んで予約する
-        </ReservationButton>
+        </ReservationLink>
       </li>
     </ul>
   );

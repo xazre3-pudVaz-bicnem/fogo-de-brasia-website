@@ -14,7 +14,7 @@ import { SectionHeading } from '@/components/ui/SectionHeading';
 import { CoursePreview } from '@/components/sections/CourseList';
 import { NewsPreview } from '@/components/sections/NewsList';
 import { ReservationCTA } from '@/components/sections/ReservationCTA';
-import { ReservationButton } from '@/components/ui/ReservationButton';
+import { ReservationLink } from '@/components/ui/ReservationLink';
 import { Faq } from '@/components/ui/Faq';
 import { JsonLd } from '@/components/ui/JsonLd';
 import { faqSchema, graph } from '@/lib/structured-data';
@@ -67,6 +67,36 @@ export default function HomePage() {
   return (
     <>
       <Hero />
+
+      {/*
+        ヒーロー直下の導入文。
+        検索エンジンとユーザーの両方が、最初のひと目で店の輪郭を掴めるようにする。
+      */}
+      <section className="border-b border-ivory/10 bg-char">
+        <div className="mx-auto max-w-[86rem] px-5 py-14 md:px-9 md:py-16">
+          <p className="max-w-4xl text-[0.95rem] leading-[2.15] text-ivory-2 md:text-[1rem]">
+            シュラスコテーブル FOGO De BRASIA
+            新宿は、新宿駅東口から徒歩圏内、歌舞伎町にあるシュラスコレストランです。専用ロースターで焼き上げた約15種類の肉を、スタッフが串のまま席までお運びし、お客様の目の前でお好みの量に切り分けます。約30種類のサラダバービュッフェとあわせた食べ放題を、飲み放題付きのコースでご用意しました。ご予約は TableCheck から24時間承っています。
+          </p>
+
+          <ul className="mt-9 flex flex-wrap gap-x-8 gap-y-3">
+            {[
+              { href: '/menu', label: 'コースの料金と内容を見る' },
+              { href: '/churrasco', label: 'シュラスコの食べ方を知る' },
+              { href: '/access', label: '新宿駅東口からのアクセス' },
+            ].map((l) => (
+              <li key={l.href}>
+                <Link
+                  href={l.href}
+                  className="text-[0.86rem] text-gold link-underline"
+                >
+                  {l.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
 
       {/* ── 02 コンセプト ─────────────────────────── */}
       <section className="bg-char py-24 md:py-32">
@@ -180,50 +210,124 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── 04 FOGO De BRASIA の特徴 ───────────────── */}
+      {/* ── 04 選ばれる理由 ───────────────────────── */}
       <section className="bg-ivory py-24 text-brown md:py-32">
         <div className="mx-auto max-w-[86rem] px-5 md:px-9">
           <div className="flex items-start gap-10">
-            <VerticalLabel text="FEATURES" />
+            <VerticalLabel text="WHY US" />
             <div className="min-w-0 flex-1">
               <SectionHeading
                 index="03"
-                latin="FEATURES"
-                title="わたしたちが大切にしていること"
+                latin="WHY FOGO DE BRASIA"
+                title="FOGO De BRASIA 新宿が選ばれる理由"
+                lead="料理の出し方、席のつくり、立地。それぞれに理由があります。写真とあわせてご覧ください。"
                 tone="light"
               />
 
-              <div className="mt-14 grid gap-x-14 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+              {/* 焼き方・運び方・切り分け：写真を大きく、文章を横に添える */}
+              <div className="mt-16 space-y-px">
                 {[
                   {
                     n: '01',
-                    t: '専用ロースターで焼き上げる',
-                    b: '注文を受けてから焼くのではなく、常に火のそばで肉が回っています。だからこそ、焼き上がった瞬間の一枚が席に届きます。',
+                    photo: photos.passador,
+                    t: '専用ロースターで焼き上げ、串のまま席へ運ぶ',
+                    b: '注文を受けてから焼くのでは間に合いません。常に何本かの串が火のそばで回っていて、焼き上がったものから順にテーブルへ向かいます。厨房で切り分けてから運ぶと、その数分で肉は変わってしまう。串ごとお持ちするのは、いちばんよい状態でお出しするための手順です。',
+                    caption:
+                      '焼き上がった数種類の肉を、パサドールが串のままお席へ運びます',
                   },
                   {
                     n: '02',
-                    t: 'スタッフが席まで運ぶ',
-                    b: '取り分けの当番も、料理を待つ時間もいりません。焼きたての串を持ったスタッフが、テーブルを順に回ります。',
+                    photo: photos.heroCarving,
+                    t: '目の前で、希望の量だけを切り分ける',
+                    b: '厚さも量も、その場で調整します。「少なめで」「厚めに」「今はけっこうです」。そのすべてにお応えできるため、食べる量に差があるグループでも、同じテーブルで無理なく過ごせます。串の外側はよく焼け、内側は赤みが残るので、焼き加減のご希望もお伝えください。',
+                    caption:
+                      'テーブルでナイフを入れ、お好みの厚さに切り分けます',
                   },
                   {
                     n: '03',
-                    t: '目の前で、好みの量を',
-                    b: '切り分ける厚さも量も、その場で調整します。食べる量に差があるグループでも、それぞれのペースを保てます。',
+                    photo: photos.lineup,
+                    t: `厳選牛を中心に、約${site.counts.churrasco}種類のシュラスコ`,
+                    b: 'ピッカーニャをはじめとする牛の各部位に、豚肩ロース、鶏もも肉、鶏ハツ、ブラジルのソーセージ。さらに焼きチーズ、焼きパイナップル、ポンデケージョも串で焼き上げます。味付けは基本的に塩だけ。部位ごとの違いがそのまま出ます。',
+                    caption:
+                      '牛・豚・鶏に加え、焼きチーズや焼きパイナップルまで並びます',
                   },
                   {
                     n: '04',
-                    t: `厳選牛を中心に約${site.counts.churrasco}種`,
-                    b: '牛の各部位に加え、豚肉、鶏肉、ソーセージ。焼きチーズや焼きパイナップル、ポンデケージョも串で焼き上げます。',
+                    photo: photos.saladBar,
+                    t: `約${site.counts.saladBar}種類のサラダとブラジル料理`,
+                    b: '葉物や豆のサラダ、クスクスのほか、フェイジョアーダやガーリックライスといったブラジルの家庭料理、温かいスープや副菜まで。肉が続いて止まりかけたときに、酸味のある一皿を挟むとまた食べ進められます。サラダバーは箸休めではなく、肉を最後まで楽しむための仕掛けです。',
+                    caption:
+                      '当店のサラダバー。日によって並ぶ品が変わります',
                   },
                   {
                     n: '05',
-                    t: `約${site.counts.saladBar}種のサラダバー`,
-                    b: '葉物や豆のサラダ、ヴィナグレッチ、フェイジョアーダなどのブラジル家庭料理まで。肉の合間を整える一皿が並びます。',
+                    photo: photos.seatWindowBooth,
+                    t: '新宿の夜景を望む、こもり感のあるソファー席',
+                    b: 'ビルの7階にあるため、窓際のお席からは歌舞伎町の灯りと高層ビルの夜景が見渡せます。マーブル調のテーブルと革張りのソファーを組み合わせ、隣席との距離にも余裕を持たせました。完全な個室はございませんが、周囲を気にせずお過ごしいただける造りです。',
+                    caption:
+                      '窓際のソファー席。ビル7階から歌舞伎町の夜景を望みます',
                   },
+                ].map((f, i) => (
+                  <article
+                    key={f.n}
+                    className={`reveal grid items-center gap-8 border-t border-brown/15 py-12 md:gap-14 ${
+                      i % 2 === 0
+                        ? 'md:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]'
+                        : 'md:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]'
+                    }`}
+                  >
+                    <figure className={i % 2 === 0 ? '' : 'md:order-2'}>
+                      <Image
+                        src={f.photo.src}
+                        alt={f.photo.alt}
+                        width={f.photo.width}
+                        height={f.photo.height}
+                        sizes="(min-width: 768px) 46vw, 92vw"
+                        className="aspect-[16/10] w-full object-cover"
+                      />
+                      <figcaption className="mt-3 text-[0.78rem] leading-relaxed text-brown/60">
+                        {f.caption}
+                      </figcaption>
+                    </figure>
+
+                    <div className={i % 2 === 0 ? '' : 'md:order-1'}>
+                      <p className="latin text-[0.72rem] text-bordeaux tabular-nums">
+                        {f.n}
+                      </p>
+                      <h3 className="mt-4 text-[1.15rem] leading-[1.7] text-brown md:text-[1.35rem]">
+                        {f.t}
+                      </h3>
+                      <p className="mt-5 text-[0.87rem] leading-[2.05] text-brown/75">
+                        {f.b}
+                      </p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+
+              {/* 立地・用途：文章のみで簡潔に */}
+              <div className="mt-4 grid gap-x-14 gap-y-10 border-t border-brown/15 pt-12 md:grid-cols-3">
+                {[
                   {
                     n: '06',
                     t: '飲み放題付きのコース',
-                    b: '各コースに飲み放題が付きます。プレミアムディナーコースでは、TOKYO CRAFT を含む30種以上からお選びいただけます。',
+                    b: 'すべてのコースに飲み放題が含まれます。120分または150分で、プレミアムディナーコースでは TOKYO CRAFT を含む30種以上からお選びいただけます。',
+                    href: '/menu',
+                    link: 'コースの料金と内容を見る',
+                  },
+                  {
+                    n: '07',
+                    t: '新宿駅東口から徒歩圏内',
+                    b: '新宿駅から徒歩約3分、西武新宿駅から徒歩約4分。複数の路線から集まりやすく、待ち合わせの説明も短く済みます。',
+                    href: '/access',
+                    link: '新宿駅東口からのアクセスを見る',
+                  },
+                  {
+                    n: '08',
+                    t: '誕生日・宴会・貸切に対応',
+                    b: 'メッセージ入りデザートプレート付きの記念日コース、40名様からの貸切まで。人数と目的にあわせてご相談いただけます。',
+                    href: '/occasions',
+                    link: '利用シーン別のご案内を見る',
                   },
                 ].map((f) => (
                   <div key={f.n} className="reveal">
@@ -236,6 +340,12 @@ export default function HomePage() {
                     <p className="mt-4 text-[0.85rem] leading-[2] text-brown/70">
                       {f.b}
                     </p>
+                    <Link
+                      href={f.href}
+                      className="mt-5 inline-block text-[0.83rem] text-bordeaux link-underline"
+                    >
+                      {f.link}
+                    </Link>
                   </div>
                 ))}
               </div>
@@ -243,10 +353,13 @@ export default function HomePage() {
               <div className="mt-16">
                 <Link
                   href="/about"
-                  className="latin group inline-flex items-center gap-4 text-[0.74rem] text-bordeaux"
+                  className="group inline-flex items-center gap-4 text-[0.86rem] text-bordeaux"
                 >
-                  ABOUT US
-                  <span className="h-px w-10 bg-bordeaux/50 transition-all duration-500 group-hover:w-16" />
+                  わたしたちが大切にしていることを読む
+                  <span
+                    aria-hidden="true"
+                    className="h-px w-10 bg-bordeaux/50 transition-all duration-500 group-hover:w-16"
+                  />
                 </Link>
               </div>
             </div>
@@ -404,7 +517,7 @@ export default function HomePage() {
           />
 
           <div className="mt-14">
-            <CoursePreview location="home-course" />
+            <CoursePreview />
           </div>
 
           <p className="mt-8 text-[0.72rem] leading-relaxed text-ivory-dim">
@@ -415,7 +528,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── 08 店内・個室 ─────────────────────────── */}
+      {/* ── 08 店内・お席 ─────────────────────────── */}
       <section className="bg-ink py-24 md:py-32">
         <div className="mx-auto max-w-[86rem] px-5 md:px-9">
           <div className="grid gap-14 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-20">
@@ -547,13 +660,13 @@ export default function HomePage() {
             </div>
 
             <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-5">
-              <ReservationButton
-                location="home-anniversary"
+              <ReservationLink
+                location="anniversary"
                 variant="solid"
                 size="md"
               >
                 誕生日・記念日プランを予約する
-              </ReservationButton>
+              </ReservationLink>
               <MoreLink href="/party">PARTY & ANNIVERSARY</MoreLink>
             </div>
           </div>
@@ -706,7 +819,7 @@ export default function HomePage() {
                     <dd>
                       {publicOpeningHours.text}
                       <br />
-                      {publicOpeningHours.closed}
+                      {publicOpeningHours.closedDays}
                     </dd>
                   </div>
                 )}
@@ -753,7 +866,7 @@ export default function HomePage() {
                 />
               </div>
               <a
-                href={site.googleMapsSearchUrl}
+                href={site.googleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-4 inline-block text-[0.75rem] text-bordeaux link-underline"
@@ -776,7 +889,7 @@ export default function HomePage() {
       </section>
 
       {/* ── 15 予約導線 ───────────────────────────── */}
-      <ReservationCTA location="home-footer" label="空席を確認する" />
+      <ReservationCTA location="home" label="空席を確認する" />
 
       <JsonLd data={graph(faqSchema(faqGeneral.slice(0, 8)))} />
     </>

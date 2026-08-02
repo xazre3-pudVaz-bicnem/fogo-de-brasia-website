@@ -10,18 +10,22 @@ import { SectionHeading } from '@/components/ui/SectionHeading';
 import { ReservationCTA } from '@/components/sections/ReservationCTA';
 import { occasions } from '@/data/occasions';
 import { JsonLd } from '@/components/ui/JsonLd';
-import { breadcrumbSchema, graph } from '@/lib/structured-data';
+import {
+  breadcrumbWithId,
+  graph,
+  webPageSchema,
+} from '@/lib/structured-data';
 
 export const metadata: Metadata = pageMetadata({
-  title: '店内・個室｜新宿の夜景を望むソファー席',
+  title: '店内・お席｜新宿の夜景を望むソファー席',
   description:
-    '新宿・歌舞伎町のビル7階。歌舞伎町の夜景を望む窓際のソファー席、こもり感のあるボックス席、大人数でご利用いただけるお席をご紹介します。デート、女子会、会社宴会など人数と目的に合わせてご案内します。',
+    '歌舞伎町のビル7階。新宿の夜景を望む窓際のソファー席、こもり感のあるボックス席、大人数向けのテーブル席をご紹介します。デートや女子会、会社宴会など、人数と目的に合わせてご案内します。',
   path: '/space',
 });
 
 const crumbs = [
   { name: 'ホーム', href: '/' },
-  { name: '店内・個室', href: '/space' },
+  { name: '店内・お席', href: '/space' },
 ];
 
 const seats = [
@@ -162,7 +166,7 @@ export default function SpacePage() {
 
           <div className="mt-12 border-l-2 border-gold/50 bg-char-2/50 px-6 py-7 md:px-9">
             <p className="text-[0.86rem] leading-[2.05] text-ivory-2">
-              完全な個室ではありませんが、ソファーと照明の配置により、席ごとに落ち着いてお過ごしいただける構成にしています。「個室のように使いたい」といったご要望も、人数と時間帯によってはご相談を承りますので、ご予約時にお知らせください。
+              当店に完全な個室はございませんが、ソファーと照明の配置により、周囲を気にせず過ごしやすい構成にしています。半個室のようなこもり感のあるお席をご希望の場合は、人数と時間帯によってご相談を承りますので、ご予約時にお知らせください。
             </p>
           </div>
         </div>
@@ -214,7 +218,7 @@ export default function SpacePage() {
       </section>
 
       <ReservationCTA
-        location="space-footer"
+        location="space"
         photo={photos.seatMarbleRound}
         objectPosition="center 45%"
         label="空席を確認する"
@@ -228,7 +232,15 @@ export default function SpacePage() {
         lead="お席のご希望は、TableCheck でのご予約時に備考欄へお書き添えください。人数と時間帯によって、可能な範囲でご用意します。"
       />
 
-      <JsonLd data={graph(breadcrumbSchema(crumbs))} />
+      <JsonLd data={graph(
+          breadcrumbWithId(crumbs, '/space'),
+          webPageSchema({
+            path: '/space',
+            name: metadata.title as string,
+            description: metadata.description as string,
+            primaryImage: '/images/seat-window-booth.webp',
+          })
+        )} />
     </>
   );
 }

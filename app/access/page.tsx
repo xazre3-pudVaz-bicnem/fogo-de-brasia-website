@@ -11,14 +11,19 @@ import { PageHero } from '@/components/ui/PageHero';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { Faq } from '@/components/ui/Faq';
 import { ReservationCTA } from '@/components/sections/ReservationCTA';
-import { ReservationButton } from '@/components/ui/ReservationButton';
+import { ReservationLink } from '@/components/ui/ReservationLink';
 import { JsonLd } from '@/components/ui/JsonLd';
-import { breadcrumbSchema, faqSchema, graph } from '@/lib/structured-data';
+import {
+  breadcrumbWithId,
+  faqSchema,
+  graph,
+  webPageSchema,
+} from '@/lib/structured-data';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'アクセス・店舗情報｜新宿駅から徒歩約3分',
+  title: 'アクセス｜新宿駅東口から徒歩圏内',
   description:
-    'シュラスコテーブル FOGO De BRASIA 新宿へのアクセス。〒160-0021 東京都新宿区歌舞伎町1-6-7 7F。新宿駅から徒歩約3分、西武新宿駅から徒歩約4分。駅からの道順、歌舞伎町内での位置、地図をご案内します。',
+    'シュラスコテーブル FOGO De BRASIA 新宿へのアクセス。〒160-0021 東京都新宿区歌舞伎町1-6-7 7F。新宿駅東口から徒歩約3分、西武新宿駅から徒歩約4分。両駅からの道順と地図をご案内します。',
   path: '/access',
 });
 
@@ -101,7 +106,7 @@ export default function AccessPage() {
                       <>
                         {publicOpeningHours.text}
                         <br />
-                        {publicOpeningHours.closed}
+                        {publicOpeningHours.closedDays}
                       </>
                     ) : (
                       <span className="text-ivory-dim">
@@ -151,15 +156,15 @@ export default function AccessPage() {
               </dl>
 
               <div className="mt-10 flex flex-wrap gap-4">
-                <ReservationButton
-                  location="access-info"
+                <ReservationLink
+                  location="access"
                   variant="solid"
                   size="md"
                 >
                   空席を確認する
-                </ReservationButton>
+                </ReservationLink>
                 <a
-                  href={site.googleMapsSearchUrl}
+                  href={site.googleMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2.5 border border-ivory/25 px-6 py-3.5 text-[0.8rem] tracking-[0.1em] text-ivory transition-colors hover:border-gold hover:text-gold"
@@ -296,7 +301,7 @@ export default function AccessPage() {
       </section>
 
       <ReservationCTA
-        location="access-footer"
+        location="access"
         photo={photos.viewNight}
         label="空席を確認する"
         title={
@@ -308,7 +313,16 @@ export default function AccessPage() {
         }
       />
 
-      <JsonLd data={graph(breadcrumbSchema(crumbs), faqSchema(faqAccess))} />
+      <JsonLd data={graph(
+          breadcrumbWithId(crumbs, '/access'),
+          webPageSchema({
+            path: '/access',
+            name: metadata.title as string,
+            description: metadata.description as string,
+            primaryImage: '/images/view-shinjuku-night.webp',
+          }),
+          faqSchema(faqAccess, '/access')
+        )} />
     </>
   );
 }

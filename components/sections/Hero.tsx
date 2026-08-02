@@ -20,7 +20,6 @@ export function Hero() {
         priority
         fetchPriority="high"
         sizes="100vw"
-        quality={82}
         className="-z-10 object-cover object-[68%_center] md:object-center"
       />
 

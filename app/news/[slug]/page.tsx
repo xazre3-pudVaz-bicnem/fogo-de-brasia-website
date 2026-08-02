@@ -3,17 +3,31 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { articleBySlug, articles, formatDate } from '@/data/news';
+import {
+  articleBySlug,
+  publishedArticles,
+  relatedArticles,
+  formatDate,
+  tableOfContents,
+} from '@/data/news';
+import { site } from '@/lib/site-config';
+import { pageMetadata } from '@/lib/seo';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { ArticleBody } from '@/components/sections/ArticleBody';
+import { Faq } from '@/components/ui/Faq';
 import { ReservationCTA } from '@/components/sections/ReservationCTA';
 import { JsonLd } from '@/components/ui/JsonLd';
-import { articleSchema, breadcrumbSchema, graph } from '@/lib/structured-data';
+import {
+  articleSchema,
+  breadcrumbWithId,
+  faqSchema,
+  graph,
+} from '@/lib/structured-data';
 
 type Params = { params: Promise<{ slug: string }> };
 
 export function generateStaticParams() {
-  return articles.map((a) => ({ slug: a.slug }));
+  return publishedArticles.map((a) => ({ slug: a.slug }));
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
@@ -21,33 +35,20 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const article = articleBySlug(slug);
   if (!article) return {};
 
-  return {
+  return pageMetadata({
     title: article.title,
     description: article.summary,
-    alternates: { canonical: `/news/${article.slug}` },
-    openGraph: {
-      type: 'article',
-      title: article.title,
-      description: article.summary,
-      url: `/news/${article.slug}`,
-      publishedTime: article.publishedAt,
-      modifiedTime: article.updatedAt ?? article.publishedAt,
-      images: [
-        {
-          url: article.photo.src,
-          width: article.photo.width,
-          height: article.photo.height,
-          alt: article.photo.alt,
-        },
-      ],
+    path: `/news/${article.slug}`,
+    type: 'article',
+    publishedTime: article.publishedAt,
+    modifiedTime: article.updatedAt ?? article.publishedAt,
+    image: {
+      url: article.photo.src,
+      width: article.photo.width,
+      height: article.photo.height,
+      alt: article.photo.alt,
     },
-    twitter: {
-      card: 'summary_large_image',
-      title: article.title,
-      description: article.summary,
-      images: [article.photo.src],
-    },
-  };
+  });
 }
 
 export default async function ArticlePage({ params }: Params) {
@@ -55,18 +56,20 @@ export default async function ArticlePage({ params }: Params) {
   const article = articleBySlug(slug);
   if (!article) notFound();
 
-  const related = articles.filter((a) => a.slug !== article.slug).slice(0, 3);
+  const related = relatedArticles(article, 3);
+  const toc = tableOfContents(article);
+  const path = `/news/${article.slug}`;
 
   const crumbs = [
     { name: 'ホーム', href: '/' },
     { name: 'お知らせ・コラム', href: '/news' },
-    { name: article.title, href: `/news/${article.slug}` },
+    { name: article.title, href: path },
   ];
 
   return (
     <>
       {/* 記事ヘッダー */}
-      <header className="relative isolate flex min-h-[58svh] flex-col justify-end overflow-hidden pt-28">
+      <header className="relative isolate flex min-h-[54svh] flex-col justify-end overflow-hidden pt-28">
         <Image
           src={article.photo.src}
           alt={article.photo.alt}
@@ -80,16 +83,27 @@ export default async function ArticlePage({ params }: Params) {
           className="absolute inset-0 -z-10 bg-gradient-to-t from-char via-char/80 to-ink/55"
         />
 
-        <div className="mx-auto w-full max-w-[52rem] px-5 pb-14 md:px-9 md:pb-16">
+        <div className="mx-auto w-full max-w-[52rem] px-5 pb-12 md:px-9 md:pb-14">
           <Breadcrumbs crumbs={crumbs} />
 
-          <p className="mt-8 flex flex-wrap items-center gap-4 text-[0.7rem] text-ivory-dim">
-            <time dateTime={article.publishedAt} className="tabular-nums">
-              {formatDate(article.publishedAt)}
-            </time>
+          <p className="mt-8 flex flex-wrap items-center gap-4 text-[0.75rem] text-ivory-dim">
             <span className="border border-gold/40 px-2.5 py-0.5 text-[0.7rem] tracking-[0.1em] text-gold">
               {article.category}
             </span>
+            <span>
+              公開{' '}
+              <time dateTime={article.publishedAt} className="tabular-nums">
+                {formatDate(article.publishedAt)}
+              </time>
+            </span>
+            {article.updatedAt && article.updatedAt !== article.publishedAt && (
+              <span>
+                更新{' '}
+                <time dateTime={article.updatedAt} className="tabular-nums">
+                  {formatDate(article.updatedAt)}
+                </time>
+              </span>
+            )}
           </p>
 
           <h1 className="mt-5 text-[1.6rem] leading-[1.6] text-balance-ja text-ivory md:text-[2.2rem]">
@@ -98,41 +112,109 @@ export default async function ArticlePage({ params }: Params) {
         </div>
       </header>
 
-      {/* 本文 */}
-      <article className="bg-char pb-24 pt-16 md:pb-32 md:pt-20">
+      <article className="bg-char pb-24 pt-12 md:pb-32 md:pt-16">
         <div className="mx-auto max-w-[52rem] px-5 md:px-9">
-          <p className="border-l-2 border-gold/50 bg-char-2/50 py-5 pl-6 text-[0.88rem] leading-[2.05] text-ivory-2">
-            {article.summary}
-          </p>
+          {article.photoCaption && (
+            <p className="text-[0.78rem] leading-relaxed text-ivory-dim">
+              {article.photoCaption}
+            </p>
+          )}
 
-          <div className="mt-14">
-            <ArticleBody
-              blocks={article.blocks}
-              ctaLocation={`article-${article.slug}`}
-            />
+          {/* 著者・出典 */}
+          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 border-y border-ivory/12 py-4 text-[0.78rem] text-ivory-dim">
+            <span>
+              執筆・監修{' '}
+              <span className="text-ivory-2">{site.editorialName}</span>
+            </span>
+            <span>{site.name}の店舗情報にもとづいて作成しています</span>
           </div>
 
-          {/* 記事下の導線 */}
-          <div className="mt-20 border-t border-ivory/12 pt-10">
-            <p className="latin text-[0.7rem] text-gold">RELATED PAGES</p>
-            <ul className="mt-6 flex flex-wrap gap-x-8 gap-y-3">
-              {[
-                { href: '/menu', label: 'メニュー・コース' },
-                { href: '/churrasco', label: 'シュラスコについて' },
-                { href: '/access', label: 'アクセス' },
-                { href: '/party', label: '宴会・貸切・記念日' },
-              ].map((l) => (
-                <li key={l.href}>
-                  <Link
-                    href={l.href}
-                    className="text-[0.82rem] text-ivory-2 link-underline"
-                  >
-                    {l.label}
-                  </Link>
+          {/* 要点 */}
+          <section
+            aria-label="この記事の要点"
+            className="mt-10 border-l-2 border-gold bg-char-2/60 px-6 py-7 md:px-8"
+          >
+            <h2 className="latin text-[0.72rem] text-gold">KEY POINTS</h2>
+            <p className="mt-1 text-[0.85rem] text-ivory-dim">この記事の要点</p>
+            <ul className="mt-5 space-y-3">
+              {article.keyPoints.map((k) => (
+                <li
+                  key={k}
+                  className="flex gap-4 text-[0.88rem] leading-[1.9] text-ivory-2"
+                >
+                  <span
+                    aria-hidden="true"
+                    className="mt-[0.7em] h-px w-3.5 shrink-0 bg-gold/70"
+                  />
+                  <span>{k}</span>
                 </li>
               ))}
             </ul>
+          </section>
+
+          {/* 目次 */}
+          {toc.length > 2 && (
+            <nav
+              aria-label="目次"
+              className="mt-10 border border-ivory/15 p-6 md:p-7"
+            >
+              <p className="latin text-[0.72rem] text-gold">CONTENTS</p>
+              <ol className="mt-5 space-y-2.5">
+                {toc.map((t, i) => (
+                  <li key={t.id} className="flex gap-4">
+                    <span className="latin shrink-0 text-[0.72rem] text-gold-dim tabular-nums">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <a
+                      href={`#${t.id}`}
+                      className="text-[0.86rem] leading-[1.8] text-ivory-2 transition-colors hover:text-gold"
+                    >
+                      {t.text}
+                    </a>
+                  </li>
+                ))}
+              </ol>
+            </nav>
+          )}
+
+          {/* 要約 */}
+          <p className="mt-10 text-[0.9rem] leading-[2.1] text-ivory-dim">
+            {article.summary}
+          </p>
+
+          <div className="mt-12">
+            <ArticleBody blocks={article.blocks} ctaLocation="article" />
           </div>
+
+          {/* 記事固有の FAQ */}
+          {article.faq && article.faq.length > 0 && (
+            <section className="mt-20">
+              <h2 className="text-[1.15rem] leading-[1.7] text-ivory md:text-[1.35rem]">
+                この記事に関するよくあるご質問
+              </h2>
+              <div className="mt-7">
+                <Faq items={article.faq} />
+              </div>
+            </section>
+          )}
+
+          {/* 出典・注意書き */}
+          <aside className="mt-16 border border-ivory/12 bg-char-2/40 p-6 text-[0.78rem] leading-[1.9] text-ivory-dim md:p-7">
+            <p className="text-ivory-2">この記事について</p>
+            <ul className="mt-3 space-y-1.5">
+              <li>
+                本記事は{site.name}
+                の店舗情報および TableCheck 掲載のプラン内容にもとづいて作成しています。
+              </li>
+              <li>
+                料金・コース内容・営業時間は変更になる場合があります。ご来店前に
+                TableCheck の予約ページで最新の情報をご確認ください。
+              </li>
+              <li>
+                仕入れの状況により、当日ご提供する部位やサラダバーの内容が変わる場合があります。
+              </li>
+            </ul>
+          </aside>
         </div>
       </article>
 
@@ -141,13 +223,18 @@ export default async function ArticlePage({ params }: Params) {
         <section className="bg-ink py-20 md:py-24">
           <div className="mx-auto max-w-[86rem] px-5 md:px-9">
             <div className="flex flex-wrap items-baseline justify-between gap-4">
-              <p className="latin text-[0.72rem] text-gold">OTHER ARTICLES</p>
+              <h2 className="latin text-[0.72rem] text-gold">
+                RELATED ARTICLES
+              </h2>
               <Link
                 href="/news"
-                className="latin group inline-flex items-center gap-3 text-[0.72rem] text-gold"
+                className="group inline-flex items-center gap-3 text-[0.82rem] text-gold"
               >
-                ALL ARTICLES
-                <span className="h-px w-8 bg-gold/60 transition-all duration-500 group-hover:w-12" />
+                お知らせ・コラムの一覧を見る
+                <span
+                  aria-hidden="true"
+                  className="h-px w-8 bg-gold/60 transition-all duration-500 group-hover:w-12"
+                />
               </Link>
             </div>
 
@@ -170,9 +257,9 @@ export default async function ArticlePage({ params }: Params) {
                       </time>
                       <span className="text-gold">{a.category}</span>
                     </p>
-                    <h2 className="mt-2.5 text-[0.98rem] leading-[1.7] text-balance-ja text-ivory transition-colors group-hover:text-gold">
+                    <h3 className="mt-2.5 text-[0.98rem] leading-[1.7] text-balance-ja text-ivory transition-colors group-hover:text-gold">
                       {a.title}
-                    </h2>
+                    </h3>
                   </Link>
                 </li>
               ))}
@@ -181,14 +268,11 @@ export default async function ArticlePage({ params }: Params) {
         </section>
       )}
 
-      <ReservationCTA
-        location={`article-${article.slug}-footer`}
-        label="空席を確認する"
-      />
+      <ReservationCTA location="article" label="空席を確認する" />
 
       <JsonLd
         data={graph(
-          breadcrumbSchema(crumbs),
+          breadcrumbWithId(crumbs, path),
           articleSchema({
             title: article.title,
             summary: article.summary,
@@ -196,7 +280,8 @@ export default async function ArticlePage({ params }: Params) {
             publishedAt: article.publishedAt,
             updatedAt: article.updatedAt,
             image: article.photo.src,
-          })
+          }),
+          ...(article.faq?.length ? [faqSchema(article.faq, path)] : [])
         )}
       />
     </>

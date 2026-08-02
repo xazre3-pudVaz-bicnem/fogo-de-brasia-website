@@ -2,12 +2,19 @@ import type { Metadata, Viewport } from 'next';
 import { Cormorant_Garamond } from 'next/font/google';
 import './globals.css';
 
+import { isIndexable, siteUrl } from '@/lib/env';
 import { site } from '@/lib/site-config';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { MobileReserveBar } from '@/components/layout/MobileReserveBar';
+import { CtaTracker } from '@/components/analytics/CtaTracker';
 import { JsonLd } from '@/components/ui/JsonLd';
-import { graph, restaurantSchema, websiteSchema } from '@/lib/structured-data';
+import {
+  graph,
+  organizationSchema,
+  restaurantSchema,
+  websiteSchema,
+} from '@/lib/structured-data';
 
 /**
  * 欧文のみ Web フォントを読み込む。
@@ -18,39 +25,34 @@ const cormorant = Cormorant_Garamond({
   weight: ['400', '500'],
   display: 'swap',
   variable: '--font-cormorant',
+  // 和文へフォールバックする際のズレを抑える
+  adjustFontFallback: true,
 });
 
+const defaultTitle = '新宿のシュラスコ食べ放題｜FOGO De BRASIA 新宿【公式】';
+const defaultDescription =
+  '新宿駅東口から徒歩圏内のシュラスコテーブル FOGO De BRASIA 新宿。約15種類の本格シュラスコと約30種類のサラダバー、飲み放題付きコースをご用意。誕生日、宴会、貸切のご予約はTableCheckから。';
+
 export const metadata: Metadata = {
-  metadataBase: new URL(site.url),
+  metadataBase: new URL(siteUrl),
   title: {
-    default: '新宿のシュラスコ食べ放題｜FOGO De BRASIA 新宿【公式】',
+    default: defaultTitle,
     // 下層ページのタイトルが長くなりすぎないよう、接尾辞は店名のみに留める
     template: `%s｜${site.shortName}`,
   },
-  description:
-    '新宿駅徒歩約3分のシュラスコ専門店。焼きたての本格シュラスコを目の前で切り分けてご提供します。約30種のサラダバー、飲み放題付きコース、個室風のソファー席、誕生日・記念日、宴会・貸切にも対応。ご予約はTableCheckから。',
-  keywords: [
-    '新宿 シュラスコ',
-    '新宿 シュラスコ 食べ放題',
-    '新宿 シュラスコ 個室',
-    '歌舞伎町 シュラスコ',
-    '新宿 肉料理',
-    '新宿 ブラジル料理',
-    '新宿 誕生日 ディナー',
-    '新宿 貸切 レストラン',
-  ],
+  description: defaultDescription,
   applicationName: site.name,
   authors: [{ name: site.name }],
   creator: site.name,
+  publisher: site.name,
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website',
     siteName: site.name,
     locale: site.locale,
-    url: site.url,
-    title: '新宿のシュラスコ食べ放題｜FOGO De BRASIA 新宿【公式】',
-    description:
-      '新宿駅徒歩約3分。焼きたての本格シュラスコを目の前で切り分けてご提供します。サラダバー・飲み放題付きコース、誕生日・記念日、宴会・貸切にも対応。',
+    url: '/',
+    title: defaultTitle,
+    description: defaultDescription,
     images: [
       {
         url: '/og-image.jpg',
@@ -62,17 +64,31 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: '新宿のシュラスコ食べ放題｜FOGO De BRASIA 新宿【公式】',
-    description:
-      '新宿駅徒歩約3分。焼きたての本格シュラスコを目の前で切り分けてご提供します。サラダバー・飲み放題付きコース、宴会・貸切にも対応。',
+    title: defaultTitle,
+    description: defaultDescription,
     images: ['/og-image.jpg'],
   },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
-  },
+  /**
+   * 本番の独自ドメインでのみ index を許可する。
+   * Preview / Branch デプロイと、独自ドメイン未設定の状態では noindex になる
+   * （仮ドメインが検索結果に出て、本番と重複するのを防ぐため）。
+   */
+  robots: isIndexable
+    ? {
+        index: true,
+        follow: true,
+        googleBot: { index: true, follow: true, 'max-image-preview': 'large' },
+      }
+    : { index: false, follow: false, nocache: true },
   formatDetection: { telephone: false, address: false, email: false },
+  manifest: '/manifest.webmanifest',
+  // Search Console の HTML タグ確認。未設定なら出力されない
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+  },
+  other: {
+    'format-detection': 'telephone=no',
+  },
 };
 
 export const viewport: Viewport = {
@@ -85,6 +101,14 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ja" className={cormorant.variable}>
+      <head>
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title={`${site.shortName} お知らせ・コラム`}
+          href="/feed.xml"
+        />
+      </head>
       <body className="pb-fixed-cta antialiased">
         <a
           href="#main"
@@ -97,8 +121,11 @@ export default function RootLayout({
         <main id="main">{children}</main>
         <Footer />
         <MobileReserveBar />
+        <CtaTracker />
 
-        <JsonLd data={graph(restaurantSchema(), websiteSchema())} />
+        <JsonLd
+          data={graph(organizationSchema(), websiteSchema(), restaurantSchema())}
+        />
       </body>
     </html>
   );

@@ -10,12 +10,16 @@ import { PageHero } from '@/components/ui/PageHero';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { ReservationCTA } from '@/components/sections/ReservationCTA';
 import { JsonLd } from '@/components/ui/JsonLd';
-import { breadcrumbSchema, graph } from '@/lib/structured-data';
+import {
+  breadcrumbWithId,
+  graph,
+  webPageSchema,
+} from '@/lib/structured-data';
 
 export const metadata: Metadata = pageMetadata({
-  title: '当店について｜新宿・歌舞伎町のシュラスコ専門店',
+  title: '当店について｜新宿・歌舞伎町のシュラスカリア',
   description:
-    '新宿・歌舞伎町のシュラスコ専門店「FOGO De BRASIA 新宿」のご紹介。専用ロースターで焼き上げた肉を目の前で切り分ける、ブラジル伝統のシュラスカリアとしての考え方と、店内で過ごしていただきたい時間についてお伝えします。',
+    '新宿・歌舞伎町のシュラスコ専門店 FOGO De BRASIA 新宿のご紹介。専用ロースターでの焼き方、切り分けの考え方、サラダバーへの姿勢など、シュラスコをお出しするうえで大切にしていることをお伝えします。',
   path: '/about',
 });
 
@@ -185,11 +189,99 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* 店舗からのメッセージ・提供方針（E-E-A-T） */}
+      <section className="bg-ink py-24 md:py-32">
+        <div className="mx-auto max-w-[86rem] px-5 md:px-9">
+          <SectionHeading
+            index="04"
+            latin="OUR COMMITMENT"
+            title="シュラスコをお出しするうえで、大切にしていること"
+            lead="設備と手順の話です。特別なことではありませんが、これを守らないとシュラスコは成り立ちません。"
+          />
+
+          <div className="mt-16 space-y-px">
+            {[
+              {
+                n: '01',
+                t: '専用ロースターについて',
+                b: '客席とは独立した専用のロースターを備えています。串を回しながら常時複数本を焼いているため、注文を受けてから焼き始めるのではなく、焼き上がったものから順にお持ちできます。ロースターが独立していることで、焼肉店のように煙が客席へ回ることもほとんどありません。',
+              },
+              {
+                n: '02',
+                t: '肉の焼き方について',
+                b: '味付けは基本的に塩だけです。ピッカーニャのように脂の帯がある部位は、脂を外側にしてC字に曲げて串へ刺します。脂が溶けて赤身へ流れ落ち、内側の水分を守る。外側から順に火が入り、焼けた面を削ぎ落とすとまた新しい面が現れる。この繰り返しが、焼きたてを出し続ける仕組みです。',
+              },
+              {
+                n: '03',
+                t: '切り分けについて',
+                b: '厨房で切り分けてから運ぶと、その数分のあいだに肉は変わります。テーブルでナイフを入れるのは演出ではなく、いちばんよい状態でお出しするための手順です。厚さも量も、その場でご指定いただけます。',
+              },
+              {
+                n: '04',
+                t: 'サラダバーについて',
+                b: 'ブラジルのシュラスカリアでは、サラダバーは肉と対になる存在です。塩だけで焼いた肉を続けて食べると、どこかで舌が止まる。酸味や食感の違うものを挟むことで、また肉に戻れる。約30種類をご用意しているのは、量の問題ではなく、この役割を果たすためです。',
+              },
+            ].map((v) => (
+              <div
+                key={v.n}
+                className="reveal grid gap-5 border-t border-gold/25 bg-char-2/40 px-6 py-9 md:grid-cols-[4rem_minmax(0,20rem)_minmax(0,1fr)] md:gap-10 md:px-10 md:py-11"
+              >
+                <p className="latin text-[0.72rem] text-gold tabular-nums">
+                  {v.n}
+                </p>
+                <h3 className="text-[1.08rem] leading-[1.7] text-ivory">
+                  {v.t}
+                </h3>
+                <p className="text-[0.87rem] leading-[2.05] text-ivory-dim">
+                  {v.b}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* 運営・監修について */}
+          <div className="mt-16 border border-ivory/15 bg-char-2/30 p-7 md:p-9">
+            <h3 className="text-[1.05rem] text-ivory">
+              このサイトの運営・記事の監修について
+            </h3>
+            <dl className="mt-6 space-y-4 text-[0.86rem] leading-[1.95]">
+              <div className="flex flex-col gap-1.5 sm:flex-row sm:gap-8">
+                <dt className="w-32 shrink-0 text-gold-dim">運営</dt>
+                <dd className="text-ivory-2">{site.name}</dd>
+              </div>
+              <div className="flex flex-col gap-1.5 sm:flex-row sm:gap-8">
+                <dt className="w-32 shrink-0 text-gold-dim">記事の執筆・監修</dt>
+                <dd className="text-ivory-2">{site.editorialName}</dd>
+              </div>
+              <div className="flex flex-col gap-1.5 sm:flex-row sm:gap-8">
+                <dt className="w-32 shrink-0 text-gold-dim">記事の作成方針</dt>
+                <dd className="text-ivory-2">
+                  お知らせ・コラムは、当店の店舗情報および TableCheck
+                  に掲載しているプラン内容にもとづいて作成しています。確認できない情報は掲載せず、料金や営業時間には最終確認日を記載しています。
+                </dd>
+              </div>
+              <div className="flex flex-col gap-1.5 sm:flex-row sm:gap-8">
+                <dt className="w-32 shrink-0 text-gold-dim">情報の更新</dt>
+                <dd className="text-ivory-2">
+                  料金・コース内容・営業時間は変更になる場合があります。ご来店前に
+                  TableCheck の予約ページで最新の情報をご確認ください。
+                </dd>
+              </div>
+            </dl>
+            {/*
+              【要確認】店舗責任者・料理責任者の氏名／経歴／顔写真が未確認のため、
+              担当者個人の紹介は掲載していない。実在が確認できない人物を作らないこと。
+              確認できしだい、ここへ責任者情報を追加すると E-E-A-T が強まる。
+            */}
+          </div>
+        </div>
+      </section>
+
       {/* 店舗概要 */}
       <section className="bg-char py-24 md:py-32">
         <div className="mx-auto max-w-[86rem] px-5 md:px-9">
           <div className="grid gap-12 lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-20">
-            <SectionHeading index="04" latin="INFORMATION" title="店舗概要" />
+            <SectionHeading index="05" latin="INFORMATION" title="店舗概要" />
 
             <dl className="border-t border-ivory/12 text-[0.88rem]">
               {[
@@ -203,7 +295,7 @@ export default function AboutPage() {
                   ? [
                       {
                         t: '営業時間',
-                        d: `${publicOpeningHours.text}（${publicOpeningHours.closed}）`,
+                        d: `${publicOpeningHours.text}（${publicOpeningHours.closedDays}）`,
                       },
                     ]
                   : []),
@@ -253,7 +345,7 @@ export default function AboutPage() {
       </section>
 
       <ReservationCTA
-        location="about-footer"
+        location="about"
         photo={photos.picanhaRoastBeer}
         label="空席を確認する"
         title={
@@ -265,7 +357,15 @@ export default function AboutPage() {
         }
       />
 
-      <JsonLd data={graph(breadcrumbSchema(crumbs))} />
+      <JsonLd data={graph(
+          breadcrumbWithId(crumbs, '/about'),
+          webPageSchema({
+            path: '/about',
+            name: metadata.title as string,
+            description: metadata.description as string,
+            primaryImage: '/images/passador-skewers.webp',
+          })
+        )} />
     </>
   );
 }

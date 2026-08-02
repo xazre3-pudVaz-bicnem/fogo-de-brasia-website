@@ -6,24 +6,28 @@ import Link from 'next/link';
 
 import { photos } from '@/lib/images';
 import { site } from '@/lib/site-config';
-import { courses } from '@/data/courses';
+import { courses, formatYen } from '@/data/courses';
 import { PageHero } from '@/components/ui/PageHero';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { ReservationCTA } from '@/components/sections/ReservationCTA';
-import { ReservationButton } from '@/components/ui/ReservationButton';
+import { ReservationLink } from '@/components/ui/ReservationLink';
 import { JsonLd } from '@/components/ui/JsonLd';
-import { breadcrumbSchema, graph } from '@/lib/structured-data';
+import {
+  breadcrumbWithId,
+  graph,
+  webPageSchema,
+} from '@/lib/structured-data';
 
 export const metadata: Metadata = pageMetadata({
-  title: '宴会・貸切・記念日｜新宿で40名様から貸切',
+  title: '新宿のシュラスコ宴会・貸切｜40名様から相談可能',
   description:
-    '新宿・歌舞伎町で会社宴会、歓送迎会、同窓会、誕生日・記念日のご利用を承ります。コースと飲み放題が組みになっているため、ひとりあたりの金額が先に決まります。40名様からの貸切もご相談ください。',
+    '新宿・歌舞伎町で会社宴会、歓送迎会、同窓会を。取り分けはスタッフが行い、コースと飲み放題が組みのためひとりあたりの金額が先に決まります。40名様からの貸切は7,700円〜でご相談いただけます。',
   path: '/party',
 });
 
 const crumbs = [
   { name: 'ホーム', href: '/' },
-  { name: '宴会・貸切・記念日', href: '/party' },
+  { name: '宴会・貸切', href: '/party' },
 ];
 
 const anniversaryCourse = courses.find((c) => c.id === 'anniversary')!;
@@ -56,7 +60,6 @@ const byScale = [
   },
 ];
 
-const yen = (n: number) => `¥${n.toLocaleString('ja-JP')}`;
 
 export default function PartyPage() {
   return (
@@ -185,19 +188,19 @@ export default function PartyPage() {
 
             <div className="mt-10 border border-gold/35 px-6 py-7">
               <p className="latin text-[0.7rem] text-gold">
-                {anniversaryCourse.minutes} MIN COURSE
+                {anniversaryCourse.duration} MIN COURSE
               </p>
               <h3 className="mt-3 text-[1.15rem] text-ivory">
                 {anniversaryCourse.name}
               </h3>
               <p className="mt-3 flex items-baseline gap-3">
                 <span className="font-mincho text-[1.9rem] text-gold tabular-nums">
-                  {yen(anniversaryCourse.price)}
+                  {formatYen(anniversaryCourse.salePrice)}
                 </span>
                 <span className="text-[0.7rem] text-ivory-dim">税込</span>
               </p>
               <ul className="mt-5 space-y-2">
-                {anniversaryCourse.includes.map((line) => (
+                {anniversaryCourse.features.map((line) => (
                   <li
                     key={line}
                     className="flex gap-3 text-[0.83rem] leading-[1.85] text-ivory-2"
@@ -211,13 +214,13 @@ export default function PartyPage() {
                 ))}
               </ul>
               <div className="mt-7">
-                <ReservationButton
-                  location="party-anniversary"
+                <ReservationLink
+                  location="anniversary"
                   variant="solid"
                   size="md"
                 >
                   誕生日・記念日プランを予約する
-                </ReservationButton>
+                </ReservationLink>
               </div>
             </div>
           </div>
@@ -240,14 +243,14 @@ export default function PartyPage() {
               <div className="mt-10 border-t border-brown/15 pt-8">
                 <p className="flex items-baseline gap-3">
                   <span className="font-mincho text-[2.2rem] text-bordeaux tabular-nums">
-                    {yen(privateCourse.price)}
+                    {formatYen(privateCourse.salePrice)}
                   </span>
                   <span className="text-[0.8rem] text-brown/60">
-                    税込{privateCourse.priceNote}
+                    税込{privateCourse.priceSuffix}
                   </span>
                 </p>
                 <ul className="mt-6 space-y-2.5">
-                  {privateCourse.includes.map((line) => (
+                  {privateCourse.features.map((line) => (
                     <li
                       key={line}
                       className="flex gap-3 text-[0.86rem] leading-[1.9] text-brown/80"
@@ -261,14 +264,14 @@ export default function PartyPage() {
                   ))}
                 </ul>
                 <div className="mt-8">
-                  <ReservationButton
-                    location="party-private"
+                  <ReservationLink
+                    location="party"
                     variant="solid"
                     size="md"
                     showExternalNote
                   >
                     貸切・宴会を相談する
-                  </ReservationButton>
+                  </ReservationLink>
                 </div>
               </div>
             </div>
@@ -358,7 +361,7 @@ export default function PartyPage() {
       </section>
 
       <ReservationCTA
-        location="party-footer"
+        location="party"
         photo={photos.feast}
         objectPosition="center 40%"
         label="宴会・貸切を相談する"
@@ -372,7 +375,15 @@ export default function PartyPage() {
         lead="人数や日程が確定していない段階でも構いません。TableCheck の貸切相談プランからお問い合わせください。"
       />
 
-      <JsonLd data={graph(breadcrumbSchema(crumbs))} />
+      <JsonLd data={graph(
+          breadcrumbWithId(crumbs, '/party'),
+          webPageSchema({
+            path: '/party',
+            name: metadata.title as string,
+            description: metadata.description as string,
+            primaryImage: '/images/party-feast.webp',
+          })
+        )} />
     </>
   );
 }

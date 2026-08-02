@@ -6,17 +6,22 @@ import Link from 'next/link';
 
 import { photos } from '@/lib/images';
 import { occasions } from '@/data/occasions';
+import { occasionPages } from '@/lib/site-config';
 import { PageHero } from '@/components/ui/PageHero';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { ReservationCTA } from '@/components/sections/ReservationCTA';
-import { ReservationButton } from '@/components/ui/ReservationButton';
+import { ReservationLink } from '@/components/ui/ReservationLink';
 import { JsonLd } from '@/components/ui/JsonLd';
-import { breadcrumbSchema, graph } from '@/lib/structured-data';
+import {
+  breadcrumbWithId,
+  graph,
+  webPageSchema,
+} from '@/lib/structured-data';
 
 export const metadata: Metadata = pageMetadata({
-  title: '利用シーン｜新宿のデート・誕生日・女子会・宴会',
+  title: '利用シーン｜デート・誕生日・女子会・宴会',
   description:
-    'デート、誕生日・記念日、女子会、ご家族での食事、友人とのディナー、会社宴会、歓送迎会、同窓会、大人数の貸切。新宿・歌舞伎町のシュラスコ店FOGO De BRASIA 新宿を、目的別にご案内します。',
+    'デート、誕生日・記念日、女子会、ご家族での食事、会社宴会、歓送迎会、同窓会、大人数の貸切。新宿・歌舞伎町のシュラスコ店を目的別にご案内し、それぞれの専用ページへご案内します。',
   path: '/occasions',
 });
 
@@ -58,6 +63,45 @@ export default function OccasionsPage() {
           ))}
         </ul>
       </nav>
+
+      {/* 専用ページへのハブ */}
+      <section className="bg-char py-20 md:py-24">
+        <div className="mx-auto max-w-[86rem] px-5 md:px-9">
+          <SectionHeading
+            latin="DEDICATED PAGES"
+            title="目的が決まっている方へ"
+            lead="よくご相談いただく3つの目的については、専用のページで詳しくご案内しています。料金の区分や予約時にお伝えいただきたいことまでまとめました。"
+          />
+          <ul className="mt-12 grid gap-px md:grid-cols-3">
+            {occasionPages.map((p, i) => (
+              <li key={p.href}>
+                <Link
+                  href={p.href}
+                  className="group flex h-full flex-col gap-4 border-t-2 border-gold/50 bg-char-2/40 px-6 py-9 transition-colors hover:bg-char-2 md:px-8 md:py-11"
+                >
+                  <p className="latin flex items-center gap-3 text-[0.7rem] text-gold">
+                    <span className="tabular-nums">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <span className="h-px w-5 bg-gold/40" />
+                    <span>{p.latin}</span>
+                  </p>
+                  <h3 className="text-[1.15rem] text-ivory transition-colors group-hover:text-gold">
+                    {p.label}
+                  </h3>
+                  <p className="text-[0.84rem] leading-[1.95] text-ivory-dim">
+                    {p.summary}
+                  </p>
+                  <span
+                    aria-hidden="true"
+                    className="mt-auto h-px w-10 bg-gold/50 transition-all duration-500 group-hover:w-16"
+                  />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
 
       {/* 各シーン */}
       {occasions.map((o, i) => {
@@ -101,6 +145,28 @@ export default function OccasionsPage() {
                     {o.lead}
                   </p>
 
+                  {o.dedicatedPage ? (
+                    <div
+                      className={`mt-10 border-t pt-8 ${
+                        light ? 'border-brown/15' : 'border-ivory/12'
+                      }`}
+                    >
+                      <Link
+                        href={o.dedicatedPage.href}
+                        className={`group inline-flex items-center gap-4 text-[0.88rem] ${
+                          light ? 'text-bordeaux' : 'text-gold'
+                        }`}
+                      >
+                        {o.dedicatedPage.label}
+                        <span
+                          aria-hidden="true"
+                          className={`h-px w-10 transition-all duration-500 group-hover:w-16 ${
+                            light ? 'bg-bordeaux/50' : 'bg-gold/60'
+                          }`}
+                        />
+                      </Link>
+                    </div>
+                  ) : (
                   <dl
                     className={`mt-10 space-y-6 border-t pt-8 ${
                       light ? 'border-brown/15' : 'border-ivory/12'
@@ -128,10 +194,11 @@ export default function OccasionsPage() {
                       </div>
                     ))}
                   </dl>
+                  )}
 
                   <div className="mt-10">
-                    <ReservationButton
-                      location={`occasions-${o.id}`}
+                    <ReservationLink
+                      location="occasions"
                       variant={light ? 'solid' : 'outline'}
                       size="md"
                     >
@@ -140,7 +207,7 @@ export default function OccasionsPage() {
                         : o.id === 'private' || o.id === 'company'
                           ? '宴会・貸切を相談する'
                           : '空席を確認する'}
-                    </ReservationButton>
+                    </ReservationLink>
                   </div>
                 </div>
 
@@ -179,7 +246,7 @@ export default function OccasionsPage() {
               {
                 href: '/space',
                 latin: 'SPACE',
-                t: '店内・個室',
+                t: '店内・お席',
                 b: '窓際のソファー席、ボックス席、ラウンドテーブル席など、お席の種類をご紹介しています。',
               },
               {
@@ -209,7 +276,7 @@ export default function OccasionsPage() {
       </section>
 
       <ReservationCTA
-        location="occasions-footer"
+        location="occasions"
         photo={photos.lineup}
         label="空席を確認する"
         title={
@@ -221,7 +288,15 @@ export default function OccasionsPage() {
         }
       />
 
-      <JsonLd data={graph(breadcrumbSchema(crumbs))} />
+      <JsonLd data={graph(
+          breadcrumbWithId(crumbs, '/occasions'),
+          webPageSchema({
+            path: '/occasions',
+            name: metadata.title as string,
+            description: metadata.description as string,
+            primaryImage: '/images/drink-cheers.webp',
+          })
+        )} />
     </>
   );
 }

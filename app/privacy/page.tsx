@@ -4,7 +4,11 @@ import { site } from '@/lib/site-config';
 import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { JsonLd } from '@/components/ui/JsonLd';
-import { breadcrumbSchema, graph } from '@/lib/structured-data';
+import {
+  breadcrumbWithId,
+  graph,
+  webPageSchema,
+} from '@/lib/structured-data';
 
 export const metadata: Metadata = {
   title: 'プライバシーポリシー',
@@ -160,7 +164,14 @@ export default function PrivacyPage() {
         </div>
       </section>
 
-      <JsonLd data={graph(breadcrumbSchema(crumbs))} />
+      <JsonLd data={graph(
+          breadcrumbWithId(crumbs, '/privacy'),
+          webPageSchema({
+            path: '/privacy',
+            name: metadata.title as string,
+            description: metadata.description as string,
+          })
+        )} />
     </>
   );
 }

@@ -1,4 +1,4 @@
-import { ReservationButton } from '@/components/ui/ReservationButton';
+import { ReservationLink } from '@/components/ui/ReservationLink';
 
 /**
  * スマートフォン用の画面下部固定予約ボタン。
@@ -12,9 +12,9 @@ import { ReservationButton } from '@/components/ui/ReservationButton';
 export function MobileReserveBar() {
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 pb-[env(safe-area-inset-bottom)] md:hidden">
-      <ReservationButton location="mobile-fixed" variant="bar" size="md">
+      <ReservationLink location="mobile-fixed" variant="bar" size="md">
         WEB予約 / 空席を確認する
-      </ReservationButton>
+      </ReservationLink>
     </div>
   );
 }

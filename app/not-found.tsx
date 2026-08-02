@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 import { photos } from '@/lib/images';
 import { nav } from '@/lib/site-config';
-import { ReservationButton } from '@/components/ui/ReservationButton';
+import { ReservationLink } from '@/components/ui/ReservationLink';
 
 export const metadata = {
   title: 'ページが見つかりません',
@@ -83,9 +83,9 @@ export default function NotFound() {
         </nav>
 
         <div className="mt-14">
-          <ReservationButton location="404" variant="outline" size="md">
+          <ReservationLink location="not-found" variant="outline" size="md">
             空席を確認する
-          </ReservationButton>
+          </ReservationLink>
         </div>
       </div>
     </section>

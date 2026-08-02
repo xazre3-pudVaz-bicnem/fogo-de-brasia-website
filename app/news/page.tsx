@@ -9,12 +9,16 @@ import { PageHero } from '@/components/ui/PageHero';
 import { NewsList } from '@/components/sections/NewsList';
 import { ReservationCTA } from '@/components/sections/ReservationCTA';
 import { JsonLd } from '@/components/ui/JsonLd';
-import { breadcrumbSchema, graph } from '@/lib/structured-data';
+import {
+  breadcrumbWithId,
+  graph,
+  webPageSchema,
+} from '@/lib/structured-data';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'お知らせ・コラム｜新宿のシュラスコの話',
+  title: 'お知らせ・コラム｜シュラスコと新宿の話',
   description:
-    'シュラスコの楽しみ方、人気部位ピッカーニャの解説、新宿での誕生日ディナーや宴会・貸切会場の選び方まで。FOGO De BRASIA 新宿からのお知らせとコラムをお届けします。',
+    'シュラスコの食べ方や部位の解説、料金と時間の見方、新宿駅からのアクセス、宴会や子連れ利用の確認事項まで。FOGO De BRASIA 新宿の店舗情報にもとづいたお知らせとコラムをお届けします。',
   path: '/news',
 });
 
@@ -94,12 +98,20 @@ export default function NewsIndexPage() {
       </section>
 
       <ReservationCTA
-        location="news-footer"
+        location="news"
         photo={photos.grilledPotato}
         label="空席を確認する"
       />
 
-      <JsonLd data={graph(breadcrumbSchema(crumbs))} />
+      <JsonLd data={graph(
+          breadcrumbWithId(crumbs, '/news'),
+          webPageSchema({
+            path: '/news',
+            name: metadata.title as string,
+            description: metadata.description as string,
+            primaryImage: '/images/skewer-table-setting.webp',
+          })
+        )} />
     </>
   );
 }

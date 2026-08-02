@@ -1,28 +1,48 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import type { Block } from '@/data/news';
-import { ReservationButton } from '@/components/ui/ReservationButton';
+import {
+  ReservationLink,
+  type CtaLocation,
+} from '@/components/ui/ReservationLink';
 
-/** 記事本文のレンダラー。ブロック種別ごとに意味のある HTML を出力する。 */
+/**
+ * 記事本文のレンダラー。ブロック種別ごとに意味のある HTML を出力する。
+ * h2 には目次から飛ぶための id を振る。
+ */
 export function ArticleBody({
   blocks,
   ctaLocation,
 }: {
   blocks: Block[];
-  ctaLocation: string;
+  ctaLocation: CtaLocation;
 }) {
+  // 目次と同じ規則で h2 の id を先に決めておく（レンダー中に変数を書き換えない）
+  const h2Ids = new Map<number, string>();
+  let n = 0;
+  blocks.forEach((b, i) => {
+    if (b.type === 'h2') {
+      n += 1;
+      h2Ids.set(i, b.id ?? `section-${n}`);
+    }
+  });
+
   return (
     <div className="space-y-7">
       {blocks.map((block, i) => {
         switch (block.type) {
-          case 'h2':
+          case 'h2': {
+            const id = h2Ids.get(i) ?? block.id;
             return (
               <h2
                 key={i}
-                className="!mt-16 border-l-2 border-gold pl-5 text-[1.25rem] leading-[1.7] text-balance-ja text-ivory md:text-[1.5rem]"
+                id={id}
+                className="!mt-16 scroll-mt-24 border-l-2 border-gold pl-5 text-[1.25rem] leading-[1.7] text-balance-ja text-ivory md:text-[1.5rem]"
               >
                 {block.text}
               </h2>
             );
+          }
 
           case 'h3':
             return (
@@ -43,7 +63,10 @@ export function ArticleBody({
 
           case 'ul':
             return (
-              <ul key={i} className="!mt-8 space-y-3.5 border-y border-ivory/12 py-7">
+              <ul
+                key={i}
+                className="!mt-8 space-y-3.5 border-y border-ivory/12 py-7"
+              >
                 {block.items.map((it) => (
                   <li
                     key={it}
@@ -59,14 +82,50 @@ export function ArticleBody({
               </ul>
             );
 
+          case 'dl':
+            return (
+              <dl key={i} className="!mt-8 border-t border-ivory/12">
+                {block.items.map((item) => (
+                  <div
+                    key={item.term}
+                    className="grid gap-2 border-b border-ivory/12 py-5 sm:grid-cols-[13rem_minmax(0,1fr)] sm:gap-8"
+                  >
+                    <dt className="font-mincho text-[0.95rem] leading-[1.7] text-gold">
+                      {item.term}
+                    </dt>
+                    <dd className="text-[0.88rem] leading-[2] text-ivory-2">
+                      {item.description}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            );
+
           case 'note':
             return (
               <p
                 key={i}
-                className="border-l border-gold/40 bg-char-2/60 py-4 pl-5 text-[0.82rem] leading-[1.95] text-ivory-dim"
+                className="border-l border-gold/40 bg-char-2/60 py-4 pl-5 text-[0.85rem] leading-[1.95] text-ivory-dim"
               >
                 {block.text}
               </p>
+            );
+
+          case 'figure':
+            return (
+              <figure key={i} className="!mt-10">
+                <Image
+                  src={block.photo.src}
+                  alt={block.photo.alt}
+                  width={block.photo.width}
+                  height={block.photo.height}
+                  sizes="(min-width: 768px) 52rem, 92vw"
+                  className="w-full object-cover"
+                />
+                <figcaption className="mt-3 text-[0.78rem] leading-relaxed text-ivory-dim">
+                  {block.caption}
+                </figcaption>
+              </figure>
             );
 
           case 'link':
@@ -80,10 +139,13 @@ export function ArticleBody({
                 </p>
                 <Link
                   href={block.href}
-                  className="latin group mt-5 inline-flex items-center gap-3 text-[0.74rem] text-gold"
+                  className="group mt-5 inline-flex items-center gap-3 text-[0.86rem] text-gold"
                 >
                   {block.label}
-                  <span className="h-px w-9 bg-gold/60 transition-all duration-500 group-hover:w-14" />
+                  <span
+                    aria-hidden="true"
+                    className="h-px w-9 bg-gold/60 transition-all duration-500 group-hover:w-14"
+                  />
                 </Link>
               </aside>
             );
@@ -98,14 +160,14 @@ export function ArticleBody({
                   {block.text}
                 </p>
                 <div className="mt-6">
-                  <ReservationButton
+                  <ReservationLink
                     location={ctaLocation}
                     variant="solid"
                     size="md"
                     showExternalNote
                   >
                     {block.label}
-                  </ReservationButton>
+                  </ReservationLink>
                 </div>
               </aside>
             );

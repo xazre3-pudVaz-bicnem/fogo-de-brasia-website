@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { nav, site } from '@/lib/site-config';
 import { Wordmark } from '@/components/ui/Wordmark';
-import { ReservationButton } from '@/components/ui/ReservationButton';
+import { ReservationLink } from '@/components/ui/ReservationLink';
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -97,11 +97,11 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-3">
-            {/* ReservationButton 自身が inline-flex を持つため、表示切替は外側で行う */}
+            {/* ReservationLink 自身が inline-flex を持つため、表示切替は外側で行う */}
             <span className="hidden md:block">
-              <ReservationButton location="header" variant="outline" size="sm">
+              <ReservationLink location="header" variant="outline" size="sm">
                 WEB予約
-              </ReservationButton>
+              </ReservationLink>
             </span>
 
             {/* ハンバーガー */}
@@ -183,7 +183,7 @@ export function Header() {
           </ul>
 
           <div className="mt-9">
-            <ReservationButton
+            <ReservationLink
               location="mobile-menu"
               variant="solid"
               size="md"
@@ -191,7 +191,7 @@ export function Header() {
               showExternalNote
             >
               WEB予約
-            </ReservationButton>
+            </ReservationLink>
           </div>
 
           <div className="mt-9 space-y-2 text-[0.75rem] leading-loose text-ivory-dim">
