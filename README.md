@@ -47,11 +47,14 @@ URL をコードへ直接書かず、環境変数から取得しています。*
 
 | 変数 | 用途 |
 | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | canonical・OG・構造化データ・sitemap の基点。末尾スラッシュなし |
+| `NEXT_PUBLIC_SITE_URL` | canonical・OG・構造化データ・sitemap の基点。末尾スラッシュなし。本番は `https://www.fogodebrasia-shinjuku.jp` |
 | `LEGACY_HOST` | 旧ドメイン。設定すると新ドメインへ 308 リダイレクト |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | Search Console の HTML タグ認証（任意） |
 
-`NEXT_PUBLIC_SITE_URL` が未設定の環境（Preview / Branch デプロイ / ローカル）は、
+`NEXT_PUBLIC_SITE_URL` はビルド時にコードへ埋め込まれます。**値を変えたら必ず再デプロイ**してください。
+未設定でも、本番環境であれば Vercel が自動で入れる `VERCEL_PROJECT_PRODUCTION_URL` へフォールバックします。
+
+Preview / Branch デプロイ / ローカルは、
 **自動的に `noindex` になり、robots.txt は全面 disallow、sitemap と RSS は空**になります。
 仮ドメインが検索結果に出て本番と重複するのを防ぐためです。設定は `.env.example` を参照してください。
 

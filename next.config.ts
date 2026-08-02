@@ -3,13 +3,27 @@ import type { NextConfig } from 'next';
 
 /**
  * 独自ドメイン移行後、Vercel の仮ドメインへのアクセスを本番ドメインへ 308 で寄せる。
- * NEXT_PUBLIC_SITE_URL と、旧ドメイン（LEGACY_HOST）の両方が設定されているときだけ有効になる。
  *
- * Vercel の環境変数に次を設定してください。
- *   NEXT_PUBLIC_SITE_URL = https://example.jp
+ * Vercel の環境変数（Production のみ）に次を設定してください。
+ *   NEXT_PUBLIC_SITE_URL = https://www.example.jp
  *   LEGACY_HOST          = fogo-de-brasia-website-maj4.vercel.app
+ *
+ * NEXT_PUBLIC_SITE_URL を設定し忘れても、Vercel が自動で入れる
+ * VERCEL_PROJECT_PRODUCTION_URL（本番ドメイン）へフォールバックします。
+ *
+ * ※ LEGACY_HOST にはプロジェクト固定の別名だけを指定してください。
+ *   デプロイ固有のURL（*-xxxxx-team.vercel.app）を含めると
+ *   Preview デプロイまでリダイレクトされてしまいます。
  */
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, '');
+const rawSiteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+  process.env.VERCEL_PROJECT_PRODUCTION_URL;
+const siteUrl = rawSiteUrl
+  ? (/^https?:\/\//.test(rawSiteUrl) ? rawSiteUrl : `https://${rawSiteUrl}`).replace(
+      /\/+$/,
+      ''
+    )
+  : undefined;
 const legacyHost = process.env.LEGACY_HOST;
 
 const nextConfig: NextConfig = {
